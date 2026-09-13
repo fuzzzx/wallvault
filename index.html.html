@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuzz - WallVault — Free Wallpapers</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("nifG7ff5dAxm7WrNP");</script>
+<style>
+html, body { max-width: 100%; overflow-x: hidden; }
+:root {
+  --bg: #f0f8ff; --surface: #ffffff; --card: #e8f4fd;
+  --border: rgba(14,120,200,0.12); --text: #0d2137; --muted: #5a88aa;
+  --accent: #0e78c8; --accent2: #38bdf8; --accent3: #0ea5e9;
+  --grad: linear-gradient(135deg, #0e78c8, #38bdf8);
+  --grad2: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+  --shadow: 0 4px 24px rgba(14,120,200,0.10);
+  --shadow-lg: 0 8px 40px rgba(14,120,200,0.18);
+}
+.dark {
+  --bg: #060e17; --surface: #0d1f2d; --card: #0f2436;
+  --border: rgba(56,189,248,0.10); --text: #e0f2fe; --muted: #7ab5d4;
+  --shadow: 0 4px 24px rgba(0,0,0,0.35); --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 3px; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 64px;
+  background: rgba(240,248,255,0.88); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); transition: background 0.3s;
+}
+.dark nav { background: rgba(6,14,23,0.88); }
+.logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.nav-links { display: flex; gap: 0.25rem; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.4rem 0.9rem; border-radius: 8px; transition: all 0.2s; cursor: pointer; white-space: nowrap; }
+.nav-links a:hover, .nav-links a.active { color: var(--accent); background: rgba(14,120,200,0.08); }
+.nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+.theme-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.theme-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.upload-btn { padding: 0.45rem 1.2rem; background: var(--grad); border: none; color: white; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; white-space: nowrap; flex-shrink: 0; }
+.upload-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* HERO */
+.hero { position: relative; overflow: hidden; padding: 5rem 2rem 4rem; text-align: center; background: linear-gradient(180deg, rgba(14,120,200,0.06) 0%, transparent 100%); }
+.hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse, rgba(56,189,248,0.18) 0%, transparent 70%); pointer-events: none; }
+.hero-tag { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(14,120,200,0.08); border: 1px solid rgba(14,120,200,0.2); color: var(--accent); padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1.5rem; animation: fadeUp 0.6s ease both; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 1.2rem; animation: fadeUp 0.6s 0.1s ease both; }
+h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { color: var(--muted); font-size: 1.05rem; max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.6; animation: fadeUp 0.6s 0.2s ease both; }
+
+/* SEARCH */
+.search-wrap { max-width: 580px; margin: 0 auto 1.5rem; position: relative; animation: fadeUp 0.6s 0.3s ease both; }
+.search-wrap input { width: 100%; padding: 1rem 1.5rem 1rem 3.2rem; background: var(--surface); border: 2px solid var(--border); border-radius: 16px; font-size: 0.95rem; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: var(--shadow); }
+.search-wrap input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14,120,200,0.12); }
+.search-wrap input::placeholder { color: var(--muted); }
+.search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
+.search-btn { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); padding: 0.55rem 1.2rem; background: var(--grad); border: none; color: white; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: opacity 0.2s; }
+.search-btn:hover { opacity: 0.88; }
+
+/* STATS */
+.stats { display: flex; justify-content: center; gap: 3rem; margin-bottom: 4rem; animation: fadeUp 0.6s 0.4s ease both; }
+.stat { text-align: center; }
+.stat-num { font-size: 1.6rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; margin-top: 0.1rem; }
+
+/* SECTION */
+.section { padding: 0 2rem 4rem; max-width: 1400px; margin: 0 auto; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.section-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
+.see-all { color: var(--accent); font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+.see-all:hover { opacity: 0.7; }
+
+/* CATEGORIES */
+.cats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 3rem; }
+.cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1rem; text-align: center; cursor: pointer; transition: all 0.22s; position: relative; overflow: hidden; }
+.cat-card::before { content: ''; position: absolute; inset: 0; background: var(--grad); opacity: 0; transition: opacity 0.22s; }
+.cat-card:hover::before { opacity: 0.07; }
+.cat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: rgba(14,120,200,0.3); }
+.cat-card.active-cat { border-color: var(--accent); background: rgba(14,120,200,0.06); }
+.cat-icon { font-size: 1.6rem; margin-bottom: 0.4rem; display: block; }
+.cat-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.cat-count { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.filter-chip { padding: 0.4rem 1rem; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+.filter-chip:hover, .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* WALL GRID */
+.wall-grid { columns: 4; column-gap: 1rem; }
+@media(max-width:1100px){ .wall-grid { columns: 3; } }
+@media(max-width:750px){ .wall-grid { columns: 2; } }
+@media(max-width:480px){ .wall-grid { columns: 1; } }
+.wall-card { break-inside: avoid; margin-bottom: 1rem; border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s; }
+.wall-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow-lg); }
+.wall-card img { width: 100%; display: block; transition: transform 0.4s; }
+.wall-card:hover img { transform: scale(1.04); }
+.wall-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,0.75) 0%, transparent 50%); opacity: 0; transition: opacity 0.25s; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem; }
+.wall-card:hover .wall-overlay { opacity: 1; }
+.wall-title { color: white; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
+.wall-actions { display: flex; gap: 0.5rem; }
+.wall-btn { padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; border: none; }
+.wall-btn.download { background: var(--grad); color: white; }
+.wall-btn.preview { background: rgba(255,255,255,0.18); color: white; backdrop-filter: blur(8px); }
+.wall-btn:hover { transform: scale(1.05); }
+.badge { position: absolute; top: 0.7rem; left: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; }
+.badge.new { background: #22c55e; color: white; }
+.badge.trending { background: #f97316; color: white; }
+.download-count { position: absolute; top: 0.7rem; right: 0.7rem; background: rgba(0,0,0,0.45); backdrop-filter: blur(8px); color: white; padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.7rem; font-weight: 500; }
+
+/* LOAD MORE */
+.load-more-wrap { text-align: center; padding: 2rem 0; }
+.load-more { padding: 0.75rem 2.5rem; background: transparent; border: 2px solid var(--accent); color: var(--accent); border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; }
+.load-more:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--muted); color: var(--muted); }
+.load-more:hover { background: var(--accent); color: white; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(6,14,23,0.92); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 1.5rem; }
+.modal-overlay.open { display: flex; animation: fadeIn 0.25s ease; }
+.modal { background: var(--surface); border-radius: 20px; max-width: 900px; width: 100%; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.5); animation: scaleIn 0.25s ease; max-height: 90vh; overflow-y: auto; }
+.modal-img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
+.modal-body { padding: 1.5rem; }
+.modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+.modal-meta { display: flex; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.modal-meta span { font-size: 0.82rem; color: var(--muted); }
+.modal-meta span strong { color: var(--text); font-weight: 600; }
+.modal-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.tag { padding: 0.25rem 0.7rem; border-radius: 6px; background: rgba(14,120,200,0.1); color: var(--accent); font-size: 0.75rem; font-weight: 600; }
+.modal-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.dl-btn { padding: 0.6rem 1.6rem; background: var(--grad); border: none; color: white; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: opacity 0.2s; }
+.dl-btn:hover { opacity: 0.88; }
+.share-btn { padding: 0.6rem 1.2rem; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; }
+.share-btn:hover { border-color: var(--accent); color: var(--accent); }
+.modal-close { float: right; background: var(--card); border: none; width: 36px; height: 36px; border-radius: 8px; color: var(--text); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.modal-close:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ADMIN LOCK */
+.admin-lock { max-width: 400px; margin: 6rem auto; padding: 2.5rem 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; text-align: center; box-shadow: var(--shadow-lg); }
+.admin-lock .lock-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+.admin-lock h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.4rem; }
+.admin-lock p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+.admin-lock input { width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.95rem; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 1rem; text-align: center; letter-spacing: 0.05em; }
+.admin-lock input:focus { outline: none; border-color: var(--accent); }
+.lock-err { color: #ef4444; font-size: 0.82rem; margin-top: -0.5rem; margin-bottom: 0.75rem; display: none; }
+
+/* ADMIN PAGE */
+.admin-wrap { max-width: 800px; margin: 0 auto; padding: 3rem 2rem; }
+.admin-wrap h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.4rem; letter-spacing: -0.03em; }
+.admin-wrap p { color: var(--muted); margin-bottom: 2rem; }
+.upload-zone { border: 2px dashed rgba(14,120,200,0.35); border-radius: 20px; padding: 3rem 2rem; text-align: center; background: rgba(14,120,200,0.03); cursor: pointer; transition: all 0.25s; margin-bottom: 2rem; }
+.upload-zone:hover { border-color: var(--accent); background: rgba(14,120,200,0.07); }
+.upload-zone .up-icon { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.upload-zone p { color: var(--muted); margin-bottom: 0.5rem; }
+.upload-zone strong { color: var(--accent); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+.form-group label { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+.form-group input, .form-group select, .form-group textarea { padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.875rem; font-family: 'Plus Jakarta Sans', sans-serif; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-full { grid-column: 1 / -1; }
+.submit-btn { width: 100%; padding: 0.85rem; background: var(--grad); border: none; color: white; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: opacity 0.2s, transform 0.2s; margin-top: 0.5rem; }
+.submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* MANAGE TABLE */
+.manage-section { margin-top: 3rem; }
+.manage-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.wall-table { width: 100%; border-collapse: collapse; }
+.wall-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
+.wall-table td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.wall-table tr:hover td { background: rgba(14,120,200,0.04); }
+.wall-table img { width: 56px; height: 40px; object-fit: cover; border-radius: 8px; }
+.tbl-btn { padding: 0.3rem 0.75rem; border-radius: 7px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; font-family: 'Plus Jakarta Sans', sans-serif; margin-right: 0.4rem; transition: opacity 0.2s; }
+.tbl-btn.edit { background: rgba(14,120,200,0.12); color: var(--accent); }
+.tbl-btn.del { background: rgba(239,68,68,0.1); color: #ef4444; }
+.tbl-btn:hover { opacity: 0.75; }
+
+/* ABOUT */
+.about-wrap { max-width: 700px; margin: 0 auto; padding: 4rem 2rem; text-align: center; }
+.about-avatar { width: 96px; height: 96px; border-radius: 50%; background: var(--grad); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 32px rgba(14,120,200,0.3); }
+.about-wrap h2 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+.about-name { color: var(--accent); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.about-desc { color: var(--muted); line-height: 1.8; font-size: 1rem; background: var(--card); border-radius: 18px; padding: 1.8rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: left; }
+.about-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 2rem; }
+.about-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 1rem; text-align: center; }
+.about-card .ac-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.about-card h4 { font-weight: 700; margin-bottom: 0.25rem; font-size: 0.9rem; }
+.about-card p { font-size: 0.78rem; color: var(--muted); }
+
+/* CONTACT */
+.contact-wrap { max-width: 600px; margin: 0 auto; padding: 4rem 2rem; }
+.contact-wrap h2 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+.contact-wrap > p { color: var(--muted); margin-bottom: 2.5rem; }
+.contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.2rem; transition: transform 0.2s, box-shadow 0.2s; }
+.contact-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.cc-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(14,120,200,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.cc-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 0.2rem; }
+.cc-val { font-size: 1rem; font-weight: 700; color: var(--accent); }
+.contact-form { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; }
+.contact-form h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+/* FOOTER */
+footer { background: var(--surface); border-top: 1px solid var(--border); padding: 2rem; text-align: center; margin-top: 4rem; }
+footer p { color: var(--muted); font-size: 0.82rem; }
+footer strong { color: var(--accent); }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* SKELETON */
+.skeleton { break-inside: avoid; margin-bottom: 1rem; border-radius: 16px; overflow: hidden; background: var(--card); animation: shimmer 1.4s infinite; }
+.skeleton-img { width: 100%; background: var(--border); }
+@keyframes shimmer { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* BACK TO TOP — RIGHT SIDE */
+.back-to-top { position: fixed; bottom: 2rem; right: 2rem; z-index: 300; width: 44px; height: 44px; border-radius: 12px; background: var(--grad); border: none; color: white; font-size: 1.1rem; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: var(--shadow-lg); transition: transform 0.2s, opacity 0.2s; }
+.back-to-top.visible { display: flex; animation: fadeUp 0.3s ease; }
+.back-to-top:hover { transform: translateY(-3px); }
+
+/* RELATED */
+.related-section { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem; }
+.related-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.related-grid { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.3rem; }
+.related-grid::-webkit-scrollbar { height: 3px; }
+.related-grid::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 2px; }
+.related-item { flex-shrink: 0; width: 90px; height: 64px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+.related-item:hover { border-color: var(--accent); transform: scale(1.05); }
+.related-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ADMIN SEARCH + BULK */
+.admin-search-row { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+.admin-search-input { flex: 1; padding: 0.6rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.875rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+.admin-search-input:focus { outline: none; border-color: var(--accent); }
+.bulk-del-btn { padding: 0.6rem 1.1rem; border-radius: 10px; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.bulk-del-btn:hover { background: rgba(239,68,68,0.2); }
+.tbl-check { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+
+/* MOBILE FIX */
+@media(max-width:600px){
+  nav { padding: 0 0.5rem; gap: 0.25rem; }
+  .logo { font-size: 1rem; }
+  .nav-links a { font-size: 0.62rem; padding: 0.25rem 0.35rem; }
+  .upload-btn { font-size: 0.62rem; padding: 0.3rem 0.5rem; }
+  .theme-btn { width: 28px; height: 28px; font-size: 0.8rem; }
+  .stats { gap: 0.75rem; }
+  .stat-num { font-size: 1.1rem; }
+  .stat-label { font-size: 0.7rem; }
+}
+
+.toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; background: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 8px 32px rgba(14,120,200,0.35); animation: fadeUp 0.3s ease; display: none; }
+
+/* LAZY LOAD FADE-IN */
+.wall-card img { opacity: 0; transition: opacity 0.4s ease; }
+.wall-card img.loaded { opacity: 1; }
+
+/* FAVORITE HEART BUTTON */
+.fav-btn { position: absolute; top: 0.7rem; right: 0.7rem; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.45); backdrop-filter: blur(8px); border: none; color: white; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 2; }
+.fav-btn:hover { transform: scale(1.15); background: rgba(0,0,0,0.6); }
+.fav-btn.faved { color: #ef4444; }
+.wall-card.has-fav .download-count { top: 2.7rem; }
+
+/* EMPTY STATE */
+.empty-state { grid-column: 1/-1; text-align: center; padding: 4rem 1.5rem; color: var(--muted); }
+.empty-state .es-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+.empty-state h4 { font-size: 1.1rem; color: var(--text); font-weight: 700; margin-bottom: 0.4rem; }
+.empty-state p { font-size: 0.85rem; }
+
+/* PAGINATION */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 0.4rem; padding: 2rem 0; flex-wrap: wrap; }
+.page-btn { min-width: 38px; height: 38px; padding: 0 0.7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+.page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--grad); color: white; border-color: transparent; }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-info { font-size: 0.8rem; color: var(--muted); margin: 0 0.5rem; }
+
+/* SEARCH DEBOUNCE INDICATOR */
+.search-wrap.searching .search-icon { animation: spin 0.6s linear infinite; }
+@keyframes spin { from { transform: translateY(-50%) rotate(0deg); } to { transform: translateY(-50%) rotate(360deg); } }
+
+/* ANALYTICS DASHBOARD */
+.analytics-section { margin-top: 3rem; }
+.analytics-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.analytics-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.a-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; text-align: center; }
+.a-card .a-num { font-size: 1.5rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.a-card .a-label { font-size: 0.76rem; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
+.a-block { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.4rem; margin-bottom: 1rem; }
+.a-block h4 { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+.a-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.8rem; }
+.a-bar-label { width: 110px; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a-bar-track { flex: 1; height: 10px; background: var(--card); border-radius: 6px; overflow: hidden; }
+.a-bar-fill { height: 100%; background: var(--grad); border-radius: 6px; transition: width 0.5s ease; }
+.a-bar-val { font-size: 0.78rem; color: var(--muted); font-weight: 600; width: 48px; text-align: right; flex-shrink: 0; }
+
+/* EXTERNAL (PEXELS) NOTICE */
+.external-notice { background: rgba(14,120,200,0.08); border: 1px solid rgba(14,120,200,0.2); color: var(--accent); padding: 0.6rem 1rem; border-radius: 12px; font-size: 0.82rem; font-weight: 600; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="showPage('home')">Fuzz - WallVault</div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+    <li><a onclick="galleryActiveCat='all';showPage('gallery')" id="nav-gallery">Gallery</a></li>
+    <li><a onclick="showPage('favorites')" id="nav-favorites">❤ Favorites</a></li>
+    <li><a onclick="showPage('about')" id="nav-about">About</a></li>
+    <li><a onclick="showPage('contact')" id="nav-contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <button class="upload-btn" onclick="showPage('admin')">⬆ Upload</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">✨ 100% Free Downloads</div>
+    <h1>Beautiful Wallpapers<br><span>For Everyone</span></h1>
+    <p class="hero-sub">Discover thousands of stunning, high-quality wallpapers. Download in any resolution — completely free, no signup needed.</p>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search wallpapers… sky, anime, cars, space…" id="heroSearch" oninput="debouncedHeroSearch(this.value, this)">
+      <button class="search-btn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="statWallpapers">0</div><div class="stat-label">Wallpapers</div></div>
+      <div class="stat"><div class="stat-num" id="statCategories">0</div><div class="stat-label">Categories</div></div>
+      <div class="stat"><div class="stat-num">4K</div><div class="stat-label">Max Resolution</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Free</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><div class="section-title">🗂 Browse Categories</div></div>
+    <div class="cats-grid" id="homeCats"></div>
+    <div class="section-header">
+      <div class="section-title">🔥 Trending Now</div>
+      <a class="see-all" onclick="showPage('gallery')">See all →</a>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-chip" onclick="setFilter('newest',this)">Newest</button>
+      <button class="filter-chip" onclick="setFilter('popular',this)">Most Popular</button>
+      <button class="filter-chip" onclick="setFilter('downloads',this)">Most Downloaded</button>
+    </div>
+    <div class="wall-grid" id="homeGrid"></div>
+    <div class="load-more-wrap">
+      <button class="load-more" id="homeLoadMoreBtn" onclick="loadMoreHome()">Load More Wallpapers</button>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div class="page" id="page-gallery">
+  <div class="section" style="padding-top:2.5rem;">
+    <a class="back-link" onclick="showPage('home')" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:700;color:var(--accent);margin-bottom:1rem;">← Back to Home</a>
+    <div class="section-header"><div class="section-title" id="galleryTitle">🖼 All Wallpapers</div></div>
+    <div class="cats-grid" id="galleryCats"></div>
+    <div class="filter-bar" style="margin-top:0.5rem;">
+      <button class="filter-chip active" onclick="setGalleryFilter('all',this)">All</button>
+      <button class="filter-chip" onclick="setGalleryFilter('newest',this)">Newest</button>
+      <button class="filter-chip" onclick="setGalleryFilter('popular',this)">Popular</button>
+      <button class="filter-chip" onclick="setGalleryFilter('downloads',this)">Downloads</button>
+    </div>
+    <div class="search-wrap" style="max-width:420px;margin:0 0 1.5rem;">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search…" id="gallerySearch" oninput="debouncedGallerySearch(this)">
+    </div>
+    <div class="external-notice" id="externalNotice" style="display:none;"></div>
+    <div class="wall-grid" id="galleryGrid"></div>
+    <div class="pagination" id="galleryPagination"></div>
+  </div>
+</div>
+
+<!-- FAVORITES -->
+<div class="page" id="page-favorites">
+  <div class="section" style="padding-top:2.5rem;">
+    <div class="section-header"><div class="section-title">❤ My Favorites</div></div>
+    <div class="wall-grid" id="favoritesGrid"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div id="adminLock">
+    <div class="admin-lock">
+      <span class="lock-icon">🔐</span>
+      <h3>Admin Access</h3>
+      <p>Enter password to access the upload panel</p>
+      <input type="password" id="adminPwdInput" placeholder="Enter password…" onkeydown="if(event.key==='Enter')checkAdminPwd()">
+      <div class="lock-err" id="lockErr">❌ Wrong password. Try again.</div>
+      <button class="submit-btn" onclick="checkAdminPwd()">Unlock 🔓</button>
+    </div>
+  </div>
+  <div class="admin-wrap" id="adminPanel" style="display:none;">
+    <h2>⬆ Upload Wallpaper</h2>
+    <p>Add new wallpapers to the collection</p>
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+      <span class="up-icon">🖼</span>
+      <p><strong>Click to upload</strong> or drag & drop</p>
+      <p style="font-size:0.78rem">PNG, JPG, WEBP · Max 20MB</p>
+      <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="previewUpload(this)">
+    </div>
+    <img id="uploadPreview" style="width:100%;border-radius:14px;margin-bottom:1rem;display:none;max-height:280px;object-fit:cover;">
+    <div class="form-grid">
+      <div class="form-group"><label>Title</label><input type="text" id="upTitle" placeholder="e.g. Sunset Over Ocean"></div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="upCat">
+          <option>Nature</option><option>Space</option><option>Abstract</option>
+          <option>Cars</option><option>Anime</option><option>Dark</option>
+          <option>Minimal</option><option>Architecture</option><option>Animals</option>
+          <option>Sky</option><option>Ocean</option><option>Mountains</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Resolution</label>
+        <select id="upRes">
+          <option>4K (3840×2160)</option><option>2K (2560×1440)</option>
+          <option>1080p (1920×1080)</option><option>Mobile (1080×1920)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Badge</label>
+        <select id="upBadge"><option value="">None</option><option value="new">New</option><option value="trending">Trending</option></select>
+      </div>
+      <div class="form-group form-full"><label>Tags (comma separated)</label><input type="text" id="upTags" placeholder="sunset, blue, sky, nature"></div>
+    </div>
+    <button class="submit-btn" onclick="uploadWallpaper()">⬆ Upload Wallpaper</button>
+    <div class="manage-section">
+      <h3>📋 Manage Wallpapers</h3>
+      <div class="admin-search-row">
+        <input class="admin-search-input" type="text" id="adminSearchInput" placeholder="🔍 Search wallpapers…" oninput="renderManageTable()">
+        <button class="bulk-del-btn" onclick="bulkDelete()">🗑 Delete Selected</button>
+      </div>
+      <table class="wall-table">
+        <thead><tr><th><input type="checkbox" class="tbl-check" id="checkAll" onchange="toggleCheckAll(this)"></th><th>Preview</th><th>Title</th><th>Category</th><th>Downloads</th><th>Actions</th></tr></thead>
+        <tbody id="manageTable"></tbody>
+      </table>
+    </div>
+    <div class="analytics-section">
+      <h3>📊 Analytics Dashboard</h3>
+      <div class="analytics-cards" id="analyticsCards"></div>
+      <div class="a-block">
+        <h4>Top 5 Wallpapers by Downloads</h4>
+        <div id="analyticsTopWalls"></div>
+      </div>
+      <div class="a-block">
+        <h4>Downloads by Category</h4>
+        <div id="analyticsByCat"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="page-about">
+  <div class="about-wrap">
+    <div class="about-avatar">👨‍💻</div>
+    <h2>About Fuzz - WallVault</h2>
+    <div class="about-name">Created by Mohamed Faiju</div>
+    <div class="about-desc">
+      <p>Fuzz - WallVault is a passion project built to give everyone access to beautiful, high-quality wallpapers — completely free. No login, no paywalls, just pure creativity.</p>
+      <br>
+      <p>I believe that great design should be accessible to everyone. Whether you're looking for a calming nature scene, a bold abstract, or a jaw-dropping space wallpaper — WallVault has it all, curated with love.</p>
+      <br>
+      <p>This platform is designed to be simple, fast, and beautiful — because your screen deserves the best. 🌊</p>
+    </div>
+    <div class="about-cards">
+      <div class="about-card"><div class="ac-icon">🆓</div><h4>Always Free</h4><p>No subscriptions, no hidden fees</p></div>
+      <div class="about-card"><div class="ac-icon">🖼</div><h4>HD Quality</h4><p>Up to 4K resolution downloads</p></div>
+      <div class="about-card"><div class="ac-icon">⚡</div><h4>Fast & Simple</h4><p>No login needed, instant download</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="page" id="page-contact">
+  <div class="contact-wrap">
+    <h2>📬 Contact Us</h2>
+    <p>Have a question, suggestion, or just want to say hi? We'd love to hear from you!</p>
+    <div class="contact-card">
+      <div class="cc-icon">📧</div>
+      <div><div class="cc-label">Email Address</div><div class="cc-val">ractail07@gmail.com</div></div>
+    </div>
+    <div class="contact-form">
+      <h3>Send a Message</h3>
+      <div class="form-grid" style="grid-template-columns:1fr;">
+        <div class="form-group"><label>Your Name</label><input type="text" id="contactName" placeholder="Mohamed..."></div>
+        <div class="form-group"><label>Email</label><input type="email" id="contactEmail" placeholder="you@example.com"></div>
+        <div class="form-group"><label>Message</label><textarea id="contactMessage" placeholder="Write your message here…"></textarea></div>
+      </div>
+      <button class="submit-btn" id="contactBtn" onclick="sendMsg()">Send Message 📨</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-body">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <div class="modal-title" id="modalTitle"></div>
+        <button class="modal-close" onclick="closeModalBtn()">✕</button>
+      </div>
+      <div class="modal-meta">
+        <span><strong id="modalCat"></strong> · Category</span>
+        <span><strong id="modalDL"></strong> · Downloads</span>
+        <span><strong id="modalViews"></strong> · Views</span>
+      </div>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-actions">
+        <button class="dl-btn" onclick="downloadWall()">⬇ Download Free</button>
+        <button class="share-btn" onclick="shareWall()">🔗 Share</button>
+      </div>
+      <div class="related-section">
+        <div class="related-title">You may also like</div>
+        <div class="related-grid" id="relatedGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
+
+<footer>
+  <p>Made with 💙 by <strong>Mohamed Faiju</strong> · Fuzz - WallVault © 2026 · All wallpapers free to use</p>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBoyrU57zp2zwqWPcor4wpxAYva7CuUKTo",
+  authDomain: "fuzz---wallvault.firebaseapp.com",
+  projectId: "fuzz---wallvault",
+  storageBucket: "fuzz---wallvault.firebasestorage.app",
+  messagingSenderId: "421470488653",
+  appId: "1:421470488653:web:099193004e46a1ed243404"
+};
+const CLOUDINARY_CLOUD = "dkxiqgd8v";
+const CLOUDINARY_PRESET = "Fuzz - WallVault";
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function uploadToCloudinary(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('folder', 'wallvault');
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: 'POST', body: formData });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return { url: data.secure_url, publicId: data.public_id };
+}
+
+window.uploadWallpaper = async function() {
+  const title = document.getElementById('upTitle').value.trim();
+  const file = document.getElementById('fileInput').files[0];
+  if (!title) { showToast('❌ Please enter a title'); return; }
+  if (!file) { showToast('❌ Please select an image'); return; }
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = '⏳ Uploading...'; btn.disabled = true;
+  try {
+    showToast('☁️ Uploading to Cloudinary...');
+    const { url, publicId } = await uploadToCloudinary(file);
+    showToast('💾 Saving to database...');
+    const wallData = {
+      title, category: document.getElementById('upCat').value,
+      badge: document.getElementById('upBadge').value,
+      tags: document.getElementById('upTags').value.split(',').map(t=>t.trim()).filter(Boolean),
+      imageUrl: url, publicId, downloads: 0, createdAt: new Date().toISOString()
+    };
+    const docRef = await addDoc(collection(db, 'wallpapers'), wallData);
+    wallpapers.unshift({ id: docRef.id, t: title, c: wallData.category, badge: wallData.badge, tags: wallData.tags, dl: 0, url, isFirestore: true });
+    renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
+    document.getElementById('upTitle').value = '';
+    document.getElementById('upTags').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    showToast('✅ Wallpaper uploaded successfully!');
+  } catch (err) {
+    showToast('❌ Upload failed: ' + err.message);
+  } finally {
+    btn.textContent = '⬆ Upload Wallpaper'; btn.disabled = false;
+  }
+}
+
+async function loadWallpapers() {
+  try {
+    showToast('⏳ Loading wallpapers...');
+    const q = query(collection(db, 'wallpapers'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const firestoreWalls = snapshot.docs.map(d => ({
+      id: d.id, t: d.data().title, c: d.data().category,
+      badge: d.data().badge || '', tags: d.data().tags || [],
+      dl: d.data().downloads || 0, url: d.data().imageUrl, isFirestore: true
+    }));
+    if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...seeds];
+    renderHomeGrid(); filterGallery(); renderManageTable(); renderAnalytics();
+    showToast('✅ Wallpapers loaded!');
+  } catch (err) { console.error('Load error:', err); }
+}
+
+window.deleteWall = async function(i) {
+  const w = wallpapers[i];
+  if (!confirm('Delete "' + w.t + '"?')) return;
+  try {
+    if (w.isFirestore) await deleteDoc(doc(db, 'wallpapers', w.id));
+    wallpapers.splice(i, 1);
+    renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
+    showToast('🗑 Deleted!');
+  } catch (err) { showToast('❌ Delete failed: ' + err.message); }
+}
+
+window.editWall = async function(i) {
+  const w = wallpapers[i];
+  const newTitle = prompt('Edit title:', w.t);
+  if (!newTitle) return;
+  try {
+    if (w.isFirestore) await updateDoc(doc(db, 'wallpapers', w.id), { title: newTitle });
+    w.t = newTitle;
+    renderManageTable(); renderHomeGrid(); filterGallery();
+    showToast('✅ Updated!');
+  } catch (err) { showToast('❌ Update failed: ' + err.message); }
+}
+
+loadWallpapers();
+</script>
+
+<script>
+const mobileCategories = [
+  { name: 'Nature', icon: '🌿', count: 245 }, { name: 'Anime', icon: '⛩', count: 203 },
+  { name: 'Dark', icon: '🌑', count: 178 }, { name: 'Abstract', icon: '🎨', count: 312 },
+  { name: 'Sky', icon: '🌤', count: 167 }, { name: 'Animals', icon: '🦁', count: 221 },
+];
+const pcCategories = [
+  { name: 'Space', icon: '🚀', count: 189 }, { name: 'Cars', icon: '🚗', count: 156 },
+  { name: 'Minimal', icon: '◾', count: 134 }, { name: 'Architecture', icon: '🏛', count: 97 },
+  { name: 'Ocean', icon: '🌊', count: 143 }, { name: 'Mountains', icon: '⛰', count: 118 },
+];
+const categories = [...mobileCategories, ...pcCategories];
+
+// ⚠️ PASTE YOUR PEXELS API KEY HERE (from pexels.com/api dashboard)
+const PEXELS_API_KEY = 'bEnQqJHm89gyChI8vxEWWcWmS7vbjCqGF0Fd1MfRDA4GnZfXlj2KVfcC';
+const seeds = [
+  {id:10,t:'Golden Horizon',c:'Nature',badge:'trending',tags:['golden','sky','nature'],dl:0},
+  {id:20,t:'Deep Space Nebula',c:'Space',badge:'new',tags:['space','nebula','stars'],dl:0},
+  {id:30,t:'Abstract Flow',c:'Abstract',badge:'',tags:['abstract','colorful'],dl:0},
+  {id:40,t:'Midnight Drive',c:'Cars',badge:'trending',tags:['car','night','road'],dl:0},
+  {id:50,t:'Cherry Blossom',c:'Anime',badge:'new',tags:['anime','sakura','spring'],dl:0},
+  {id:60,t:'Dark Void',c:'Dark',badge:'',tags:['dark','minimal','black'],dl:0},
+  {id:70,t:'Clean Lines',c:'Minimal',badge:'',tags:['minimal','white','clean'],dl:0},
+  {id:80,t:'City Skyline',c:'Architecture',badge:'trending',tags:['city','urban','night'],dl:0},
+  {id:90,t:'Lion Pride',c:'Animals',badge:'new',tags:['lion','wildlife','africa'],dl:0},
+  {id:100,t:'Blue Hour',c:'Sky',badge:'',tags:['sky','blue','clouds'],dl:0},
+  {id:110,t:'Ocean Waves',c:'Ocean',badge:'trending',tags:['ocean','waves','water'],dl:0},
+  {id:120,t:'Alpine Peak',c:'Mountains',badge:'new',tags:['mountain','snow','peak'],dl:0},
+  {id:130,t:'Forest Path',c:'Nature',badge:'',tags:['forest','green','path'],dl:0},
+  {id:140,t:'Galaxy Core',c:'Space',badge:'trending',tags:['galaxy','stars','cosmos'],dl:0},
+  {id:150,t:'Neon Geometry',c:'Abstract',badge:'new',tags:['neon','geometry','glow'],dl:0},
+  {id:160,t:'Speed Beast',c:'Cars',badge:'',tags:['sports car','red','speed'],dl:0},
+];
+
+let wallpapers = [...seeds];
+let activeCat = 'all';
+let galleryActiveCat = 'all';
+let currentWall = null;
+let isDark = false;
+
+// FAVORITES — persisted in localStorage (no backend needed for this)
+let favorites = JSON.parse(localStorage.getItem('wv_favorites') || '[]');
+function isFavorited(id){ return favorites.includes(String(id)); }
+function toggleFavorite(id){
+  id = String(id);
+  if(favorites.includes(id)){
+    favorites = favorites.filter(f => f !== id);
+    showToast('💔 Removed from favorites');
+  } else {
+    favorites.push(id);
+    showToast('❤ Added to favorites');
+  }
+  localStorage.setItem('wv_favorites', JSON.stringify(favorites));
+  renderHomeGrid(); filterGallery();
+  if(document.getElementById('page-favorites').classList.contains('active')) renderFavoritesGrid();
+}
+function renderFavoritesGrid(){
+  const walls = wallpapers.filter(w => isFavorited(w.id));
+  renderGrid('favoritesGrid', walls, { emptyIcon: '💔', emptyTitle: 'No favorites yet', emptyMsg: 'Tap the heart icon on any wallpaper to save it here.' });
+}
+
+// VIEW COUNTER — persisted per-wallpaper in localStorage
+let viewCounts = JSON.parse(localStorage.getItem('wv_views') || '{}');
+function trackView(id){
+  viewCounts[id] = (viewCounts[id] || 0) + 1;
+  localStorage.setItem('wv_views', JSON.stringify(viewCounts));
+  const w = wallpapers.find(x => String(x.id) === String(id));
+  if(w) w.views = viewCounts[id];
+}
+function getViews(id){ return viewCounts[id] || 0; }
+
+// WEBSITE VISITORS — counted once per browser session (tab), persisted across visits
+if(!sessionStorage.getItem('wv_session_counted')){
+  const totalVisits = parseInt(localStorage.getItem('wv_total_visits') || '0', 10) + 1;
+  localStorage.setItem('wv_total_visits', String(totalVisits));
+  sessionStorage.setItem('wv_session_counted', '1');
+}
+function getTotalVisits(){ return parseInt(localStorage.getItem('wv_total_visits') || '0', 10); }
+
+function imgUrl(id, w=600, h=400){
+  if(typeof id === 'string' && id.startsWith('http')) return id;
+  return `https://picsum.photos/seed/${id}/${w}/${h}`;
+}
+
+function getCatCount(catName){
+  return getLocalWalls().filter(w => w.c === catName).length;
+}
+
+function updateHeroStats(){
+  const wallEl = document.getElementById('statWallpapers');
+  const catEl = document.getElementById('statCategories');
+  if(wallEl) wallEl.textContent = getLocalWalls().length.toLocaleString() + '+';
+  if(catEl) catEl.textContent = categories.length;
+}
+
+function renderCats(containerId, onClickFn){
+  const el = document.getElementById(containerId);
+  el.innerHTML = `
+    <div style="grid-column:1/-1;font-size:0.8rem;font-weight:700;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0 0.4rem;">📱 Mobile Wallpapers</div>
+    ${mobileCategories.map(c=>`<div class="cat-card" onclick="${onClickFn}('${c.name}',this)"><span class="cat-icon">${c.icon}</span><div class="cat-name">${c.name}</div><div class="cat-count">${getCatCount(c.name)} walls</div></div>`).join('')}
+    <div style="grid-column:1/-1;font-size:0.8rem;font-weight:700;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:1rem 0 0.4rem;">🖥 Laptop & PC Wallpapers</div>
+    ${pcCategories.map(c=>`<div class="cat-card" onclick="${onClickFn}('${c.name}',this)"><span class="cat-icon">${c.icon}</span><div class="cat-name">${c.name}</div><div class="cat-count">${getCatCount(c.name)} walls</div></div>`).join('')}
+  `;
+  updateHeroStats();
+}
+
+function checkAdminPwd(){
+  const val = document.getElementById('adminPwdInput').value;
+  if(val === 'fuzz wallvault'){
+    document.getElementById('adminLock').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    renderManageTable();
+    renderAnalytics();
+  } else {
+    document.getElementById('lockErr').style.display = 'block';
+    document.getElementById('adminPwdInput').value = '';
+  }
+}
+
+function showSkeletons(containerId, count=8){
+  const el = document.getElementById(containerId);
+  const heights = [200,280,220,300,180,260,240,200];
+  el.innerHTML = Array.from({length:count},(_,i)=>`<div class="skeleton"><div class="skeleton-img" style="height:${heights[i%heights.length]}px"></div></div>`).join('');
+}
+
+function renderGrid(containerId, walls, opts){
+  const el = document.getElementById(containerId);
+  if(!walls.length){
+    const o = opts || {};
+    el.innerHTML = `<div class="empty-state">
+      <span class="es-icon">${o.emptyIcon || '🔍'}</span>
+      <h4>${o.emptyTitle || 'No wallpapers found'}</h4>
+      <p>${o.emptyMsg || 'Try a different search term or category.'}</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = walls.map(w => {
+    const src = w.url ? w.url : imgUrl(w.id);
+    const faved = isFavorited(w.id);
+    return `<div class="wall-card has-fav" onclick="openModal('${w.id}')">
+      <img src="${src}" alt="${w.t}" loading="lazy" onload="this.classList.add('loaded')">
+      <button class="fav-btn ${faved ? 'faved' : ''}" onclick="event.stopPropagation();toggleFavorite('${w.id}')" title="${faved ? 'Remove from favorites' : 'Add to favorites'}">${faved ? '❤' : '🤍'}</button>
+      ${w.isExternal ? `<span class="badge" style="background:#111827;color:#fff">🌐 Pexels</span>` : (w.badge ? `<span class="badge ${w.badge}">${w.badge.toUpperCase()}</span>` : '')}
+      <span class="download-count">⬇ ${(w.dl/1000).toFixed(1)}k</span>
+      <div class="wall-overlay">
+        <div class="wall-title">${w.t}</div>
+        <div class="wall-actions">
+          <button class="wall-btn download" onclick="event.stopPropagation();quickDownload('${w.id}')">⬇ Free</button>
+          <button class="wall-btn preview">👁 Preview</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// PAGINATION (numbered pages, replacing infinite scroll)
+let galleryPage = 1;
+const PAGE_SIZE = 8;
+
+// PEXELS FALLBACK SEARCH — used only when our own collection has 0 matches for a search
+async function searchPexels(query){
+  try{
+    const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=15`, {
+      headers: { Authorization: PEXELS_API_KEY }
+    });
+    if(!res.ok) throw new Error('Pexels API error: ' + res.status);
+    const data = await res.json();
+    return (data.photos || []).map(p => ({
+      id: 'pexels-' + p.id,
+      t: p.alt || query,
+      c: 'External',
+      badge: '',
+      tags: [query.toLowerCase()],
+      dl: 0,
+      url: p.src.large2x || p.src.large,
+      isExternal: true
+    }));
+  } catch(err){
+    console.error('Pexels search failed:', err);
+    return [];
+  }
+}
+
+function getLocalWalls(){
+  return wallpapers.filter(w => !w.isExternal);
+}
+
+function getFilteredWalls(){
+  const q = document.getElementById('gallerySearch').value.toLowerCase();
+  return getLocalWalls().filter(w => {
+    const matchCat = galleryActiveCat==='all' || w.c===galleryActiveCat;
+    const matchQ = !q || w.t.toLowerCase().includes(q) || w.tags.some(t=>t.includes(q));
+    return matchCat && matchQ;
+  });
+}
+
+function filterGallery(){
+  galleryPage = 1;
+  renderGalleryPage();
+}
+
+async function renderGalleryPage(){
+  const q = document.getElementById('gallerySearch').value.trim();
+  const localWalls = getFilteredWalls();
+  const notice = document.getElementById('externalNotice');
+  wallpapers = wallpapers.filter(w => !w.isExternal); // clear any external results from a previous search
+
+  let walls = localWalls;
+  let usingExternal = false;
+
+  if(q && localWalls.length === 0 && PEXELS_API_KEY && PEXELS_API_KEY !== 'YOUR_PEXELS_API_KEY'){
+    showSkeletons('galleryGrid', 8);
+    if(notice){ notice.style.display = 'block'; notice.textContent = `🌐 Searching Pexels for "${q}"…`; }
+    const externalWalls = await searchPexels(q);
+    if(externalWalls.length){
+      wallpapers.push(...externalWalls);
+      walls = externalWalls;
+      usingExternal = true;
+    }
+  }
+
+  if(notice){
+    notice.style.display = usingExternal ? 'block' : 'none';
+    if(usingExternal) notice.textContent = `🌐 No match in our own collection — showing live results from Pexels for "${q}"`;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(walls.length / PAGE_SIZE));
+  if(galleryPage > totalPages) galleryPage = totalPages;
+  const start = (galleryPage - 1) * PAGE_SIZE;
+  if(!usingExternal) showSkeletons('galleryGrid', Math.min(PAGE_SIZE, walls.length));
+  setTimeout(()=>{
+    renderGrid('galleryGrid', walls.slice(start, start + PAGE_SIZE));
+    renderPagination(walls.length, totalPages);
+  }, usingExternal ? 0 : 300);
+}
+
+function renderPagination(totalItems, totalPages){
+  const el = document.getElementById('galleryPagination');
+  if(!el) return;
+  if(totalItems === 0){ el.innerHTML = ''; return; }
+  let buttons = `<button class="page-btn" ${galleryPage===1?'disabled':''} onclick="goToGalleryPage(${galleryPage-1})">‹ Prev</button>`;
+  for(let p=1; p<=totalPages; p++){
+    if(totalPages > 7 && p !== 1 && p !== totalPages && Math.abs(p - galleryPage) > 1){
+      if(p === 2 || p === totalPages - 1) buttons += `<span class="page-info">…</span>`;
+      continue;
+    }
+    buttons += `<button class="page-btn ${p===galleryPage?'active':''}" onclick="goToGalleryPage(${p})">${p}</button>`;
+  }
+  buttons += `<button class="page-btn" ${galleryPage===totalPages?'disabled':''} onclick="goToGalleryPage(${galleryPage+1})">Next ›</button>`;
+  buttons += `<span class="page-info">${totalItems} results</span>`;
+  el.innerHTML = buttons;
+}
+
+function goToGalleryPage(p){
+  if(p < 1) return;
+  galleryPage = p;
+  renderGalleryPage();
+  document.getElementById('page-gallery').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+window.addEventListener('scroll', ()=>{
+  const btt = document.getElementById('backToTop');
+  if(window.scrollY > 400){ btt.classList.add('visible'); } else { btt.classList.remove('visible'); }
+});
+
+let currentFilter = 'all';
+let homeVisibleCount = 8;
+
+function setFilter(f, btn){
+  currentFilter = f;
+  homeVisibleCount = 8;
+  document.querySelectorAll('#page-home .filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderHomeGrid();
+}
+function setGalleryFilter(f, btn){
+  document.querySelectorAll('#page-gallery .filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); filterGallery();
+}
+function filterGalleryCat(cat, btn){
+  document.querySelectorAll('#galleryCats .cat-card').forEach(c=>c.classList.remove('active-cat'));
+  btn.classList.toggle('active-cat');
+  galleryActiveCat = btn.classList.contains('active-cat') ? cat : 'all';
+  updateGalleryTitle();
+  filterGallery();
+}
+function renderHomeGrid(){
+  let walls = getLocalWalls();
+  if(currentFilter==='newest') walls = [...walls].reverse();
+  if(currentFilter==='popular' || currentFilter==='downloads') walls = [...walls].sort((a,b)=>b.dl-a.dl);
+  renderGrid('homeGrid', walls.slice(0, homeVisibleCount));
+  updateHeroStats();
+  const btn = document.getElementById('homeLoadMoreBtn');
+  if(btn){
+    if(homeVisibleCount >= walls.length){ btn.textContent = 'No More Wallpapers'; btn.disabled = true; }
+    else { btn.textContent = 'Load More Wallpapers'; btn.disabled = false; }
+  }
+}
+
+// LOAD MORE (Home) — appends more items to the SAME grid on the SAME page.
+// No page switch, no scroll jump — the button just reveals more cards below.
+function loadMoreHome(){
+  homeVisibleCount += 8;
+  renderHomeGrid();
+}
+
+// CATEGORY DRILL-DOWN — clicking a category card on Home takes you "inside"
+// that category (Gallery page, filtered, with a title + a Back to Home link).
+function homeCatClick(cat){
+  galleryActiveCat = cat;
+  document.getElementById('gallerySearch').value = '';
+  document.querySelectorAll('#page-gallery .filter-chip').forEach(b=>b.classList.remove('active'));
+  document.querySelector('#page-gallery .filter-chip')?.classList.add('active');
+  showPage('gallery');
+}
+function galleryCatClick(cat, btn){ filterGalleryCat(cat, btn); }
+
+function updateGalleryTitle(){
+  const el = document.getElementById('galleryTitle');
+  if(!el) return;
+  el.textContent = galleryActiveCat === 'all' ? '🖼 All Wallpapers' : `🖼 ${galleryActiveCat} Wallpapers`;
+}
+
+// DEBOUNCE — waits till the user pauses typing before actually searching,
+// instead of re-filtering on every single keystroke.
+function debounce(fn, delay=350){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(()=> fn.apply(this, args), delay);
+  };
+}
+
+function liveSearch(q){
+  if(!q){ renderHomeGrid(); return; }
+  const walls = wallpapers.filter(w => w.t.toLowerCase().includes(q.toLowerCase()) || w.tags.some(t=>t.includes(q.toLowerCase())));
+  renderGrid('homeGrid', walls.slice(0,8), { emptyTitle: `No results for "${q}"`, emptyMsg: 'Try a different keyword.' });
+}
+function doSearch(){ liveSearch(document.getElementById('heroSearch').value); showPage('gallery'); }
+
+const debouncedHeroSearch = debounce((q, input) => {
+  input.parentElement.classList.remove('searching');
+  liveSearch(q);
+}, 350);
+// show a quick "searching…" spin on the icon while the debounce timer is running
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id === 'heroSearch') e.target.parentElement.classList.add('searching');
+});
+
+const debouncedGallerySearch = debounce((input) => {
+  filterGallery();
+}, 350);
+
+// MODAL
+function openModal(id){
+  const w = wallpapers.find(x=>String(x.id)===String(id));
+  if(!w) return;
+  currentWall = w;
+  const src = w.url ? w.url : imgUrl(w.id, 900, 500);
+  document.getElementById('modalImg').src = src;
+  document.getElementById('modalTitle').textContent = w.t;
+  document.getElementById('modalCat').textContent = w.c;
+  document.getElementById('modalDL').textContent = w.dl.toLocaleString();
+  document.getElementById('modalTags').innerHTML = w.tags.map(t=>`<span class="tag">#${t}</span>`).join('');
+  const related = wallpapers.filter(x=>String(x.id)!==String(id) && x.c===w.c).slice(0,6);
+  document.getElementById('relatedGrid').innerHTML = related.map(r=>`
+    <div class="related-item" onclick="openModal('${r.id}')">
+      <img src="${r.url ? r.url : imgUrl(r.id,90,64)}" alt="${r.t}" loading="lazy">
+    </div>`).join('') || '<span style="color:var(--muted);font-size:0.8rem">No related wallpapers</span>';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  trackView(w.id); // view counter — previously this line wrongly did w.dl++ (counted a preview as a download)
+  const viewsEl = document.getElementById('modalViews');
+  if(viewsEl) viewsEl.textContent = getViews(w.id).toLocaleString();
+}
+function closeModal(e){ if(e.target===document.getElementById('modal')) closeModalBtn(); }
+function closeModalBtn(){ document.getElementById('modal').classList.remove('open'); document.body.style.overflow = ''; }
+
+// DOWNLOAD — Cloudinary fix, no resolution select
+function downloadWall(){
+  if(!currentWall) return;
+  const a = document.createElement('a');
+  const url = currentWall.url ? currentWall.url : imgUrl(currentWall.id, 1920, 1080);
+  a.href = url.includes('cloudinary') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+  a.download = currentWall.t.replace(/ /g,'_') + '.jpg';
+  a.target = '_blank'; a.click();
+  currentWall.dl++;
+  renderAnalytics();
+  showToast('⬇ Downloading ' + currentWall.t + '!');
+  closeModalBtn();
+}
+function quickDownload(id){
+  const w = wallpapers.find(x=>String(x.id)===String(id));
+  if(!w) return;
+  const a = document.createElement('a');
+  const url = w.url ? w.url : imgUrl(id, 1920, 1080);
+  a.href = url.includes('cloudinary') ? url.replace('/upload/', '/upload/fl_attachment/') : url;
+  a.download = w.t.replace(/ /g,'_') + '.jpg';
+  a.target = '_blank'; a.click();
+  showToast('⬇ Downloading ' + w.t + '!');
+  w.dl++;
+  renderAnalytics();
+}
+function shareWall(){
+  navigator.clipboard.writeText(window.location.href + '#wall-' + currentWall?.id);
+  showToast('🔗 Link copied to clipboard!');
+}
+
+function previewUpload(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { const prev = document.getElementById('uploadPreview'); prev.src = e.target.result; prev.style.display = 'block'; };
+  reader.readAsDataURL(file);
+}
+
+function renderManageTable(){
+  const q = (document.getElementById('adminSearchInput')?.value || '').toLowerCase();
+  const tbody = document.getElementById('manageTable');
+  const filtered = getLocalWalls().filter(w => !q || w.t.toLowerCase().includes(q) || w.c.toLowerCase().includes(q));
+  tbody.innerHTML = filtered.slice(0,20).map(w => {
+    const i = wallpapers.indexOf(w);
+    return `<tr>
+      <td><input type="checkbox" class="tbl-check row-check" data-idx="${i}"></td>
+      <td><img src="${w.url ? w.url : imgUrl(w.id,56,40)}" alt="${w.t}"></td>
+      <td>${w.t}</td><td>${w.c}</td><td>${w.dl.toLocaleString()}</td>
+      <td><button class="tbl-btn edit" onclick="editWall(${i})">✏ Edit</button><button class="tbl-btn del" onclick="deleteWall(${i})">🗑 Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAnalytics(){
+  const cardsEl = document.getElementById('analyticsCards');
+  const topEl = document.getElementById('analyticsTopWalls');
+  const catEl = document.getElementById('analyticsByCat');
+  if(!cardsEl) return; // admin panel not open yet
+
+  const stats = getLocalWalls();
+  const totalWalls = stats.length;
+  const totalDownloads = stats.reduce((sum,w)=>sum+w.dl, 0);
+  const totalViews = stats.reduce((sum,w)=>sum+(getViews(w.id)), 0);
+  const totalFavs = favorites.length;
+
+  // Downloads grouped by category (computed first so we can show the top one as a headline card)
+  const byCat = {};
+  stats.forEach(w => { byCat[w.c] = (byCat[w.c]||0) + w.dl; });
+  const catEntries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const topCat = catEntries[0];
+
+  cardsEl.innerHTML = `
+    <div class="a-card"><div class="a-num">${totalWalls}</div><div class="a-label">Wallpapers</div></div>
+    <div class="a-card"><div class="a-num">${totalDownloads.toLocaleString()}</div><div class="a-label">Total Downloads</div></div>
+    <div class="a-card"><div class="a-num">${totalViews.toLocaleString()}</div><div class="a-label">Total Views</div></div>
+    <div class="a-card"><div class="a-num">${totalFavs}</div><div class="a-label">Favorites Saved</div></div>
+    <div class="a-card"><div class="a-num">${getTotalVisits().toLocaleString()}</div><div class="a-label">🧑‍💻 Website Viewers</div></div>
+    <div class="a-card"><div class="a-num" style="font-size:1.1rem;">${topCat ? topCat[0] : '—'}</div><div class="a-label">🏆 Highly Downloaded Category${topCat ? ` (${topCat[1].toLocaleString()} dl)` : ''}</div></div>
+  `;
+
+  // Top 5 wallpapers by downloads
+  const top5 = [...stats].sort((a,b)=>b.dl-a.dl).slice(0,5);
+  const maxDl = Math.max(1, ...top5.map(w=>w.dl));
+  topEl.innerHTML = top5.map(w => `
+    <div class="a-bar-row">
+      <div class="a-bar-label" title="${w.t}">${w.t}</div>
+      <div class="a-bar-track"><div class="a-bar-fill" style="width:${(w.dl/maxDl*100).toFixed(0)}%"></div></div>
+      <div class="a-bar-val">${w.dl.toLocaleString()}</div>
+    </div>`).join('') || '<span style="color:var(--muted);font-size:0.8rem">No data yet</span>';
+
+  const maxCat = Math.max(1, ...catEntries.map(e=>e[1]));
+  catEl.innerHTML = catEntries.map(([cat,total]) => `
+    <div class="a-bar-row">
+      <div class="a-bar-label" title="${cat}">${cat}</div>
+      <div class="a-bar-track"><div class="a-bar-fill" style="width:${(total/maxCat*100).toFixed(0)}%"></div></div>
+      <div class="a-bar-val">${total.toLocaleString()}</div>
+    </div>`).join('') || '<span style="color:var(--muted);font-size:0.8rem">No data yet</span>';
+}
+
+function toggleCheckAll(cb){ document.querySelectorAll('.row-check').forEach(c=>c.checked=cb.checked); }
+function bulkDelete(){
+  const checked = [...document.querySelectorAll('.row-check:checked')];
+  if(!checked.length){ showToast('⚠ Select wallpapers first'); return; }
+  if(!confirm(`Delete ${checked.length} selected wallpaper(s)?`)) return;
+  const idxs = checked.map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
+  idxs.forEach(i=>wallpapers.splice(i,1));
+  renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
+  showToast(`🗑 Deleted ${idxs.length} wallpaper(s)`);
+}
+
+function sendMsg(){
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const message = document.getElementById('contactMessage').value.trim();
+  if(!name || !email || !message){ showToast('❌ Please fill all fields'); return; }
+  const btn = document.getElementById('contactBtn');
+  btn.textContent = '⏳ Sending...'; btn.disabled = true;
+  emailjs.send('Fuzz - WallVault', 'template_y385fcx', {
+      from_name: name,
+      from_email: email,
+      message: message,
+      name: name,
+      email: email,
+      title: 'WallVault Contact Form'
+    })
+    .then(() => {
+      showToast('📨 Message sent successfully!');
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactEmail').value = '';
+      document.getElementById('contactMessage').value = '';
+    })
+    .catch(() => showToast('❌ Failed to send. Try again!'))
+    .finally(() => { btn.textContent = 'Send Message 📨'; btn.disabled = false; });
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if(navEl) navEl.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(name==='gallery'){
+    updateGalleryTitle();
+    document.querySelectorAll('#galleryCats .cat-card').forEach(c=>{
+      const isMatch = c.querySelector('.cat-name')?.textContent === galleryActiveCat;
+      c.classList.toggle('active-cat', isMatch);
+    });
+    filterGallery();
+  }
+  if(name==='favorites') renderFavoritesGrid();
+  if(name==='admin'){
+    document.getElementById('adminLock').style.display = 'block';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminPwdInput').value = '';
+    document.getElementById('lockErr').style.display = 'none';
+  }
+}
+
+function toggleTheme(){
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.querySelector('.theme-btn').textContent = isDark ? '☀' : '🌙';
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
+
+renderCats('homeCats', 'homeCatClick');
+renderCats('galleryCats', 'galleryCatClick');
+wallpapers.forEach(w => w.views = getViews(w.id));
+renderHomeGrid();
+filterGallery();
+renderManageTable();
+</script>
+</body>
+</html>
