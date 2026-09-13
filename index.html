@@ -105,7 +105,7 @@ h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-f
 @media(max-width:480px){ .wall-grid { columns: 1; } }
 .wall-card { break-inside: avoid; margin-bottom: 1rem; border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.25s, box-shadow 0.25s; }
 .wall-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--shadow-lg); }
-.wall-card img { width: 100%; display: block; transition: transform 0.4s; }
+.wall-card img { width: 100%; display: block; transition: transform 0.4s; aspect-ratio: 3/2; object-fit: cover; }
 .wall-card:hover img { transform: scale(1.04); }
 .wall-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,14,23,0.75) 0%, transparent 50%); opacity: 0; transition: opacity 0.25s; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem; }
 .wall-card:hover .wall-overlay { opacity: 1; }
@@ -130,7 +130,7 @@ h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-f
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(6,14,23,0.92); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 1.5rem; }
 .modal-overlay.open { display: flex; animation: fadeIn 0.25s ease; }
 .modal { background: var(--surface); border-radius: 20px; max-width: 900px; width: 100%; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.5); animation: scaleIn 0.25s ease; max-height: 90vh; overflow-y: auto; }
-.modal-img { width: 100%; max-height: 500px; object-fit: cover; display: block; }
+.modal-img { width: 100%; max-height: 70vh; object-fit: contain; display: block; background: var(--card); }
 .modal-body { padding: 1.5rem; }
 .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
 .modal-meta { display: flex; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
@@ -684,7 +684,9 @@ let wallpapers = [...seeds];
 let activeCat = 'all';
 let galleryActiveCat = 'all';
 let currentWall = null;
-let isDark = false;
+// THEME — dark mode is the default; remembers the user's choice on next visit
+const storedTheme = localStorage.getItem('wv_dark');
+let isDark = storedTheme === null ? true : storedTheme === 'true';
 
 // FAVORITES — persisted in localStorage (no backend needed for this)
 let favorites = JSON.parse(localStorage.getItem('wv_favorites') || '[]');
@@ -1185,6 +1187,7 @@ function toggleTheme(){
   isDark = !isDark;
   document.body.classList.toggle('dark', isDark);
   document.querySelector('.theme-btn').textContent = isDark ? '☀' : '🌙';
+  localStorage.setItem('wv_dark', String(isDark));
 }
 
 function showToast(msg){
@@ -1196,6 +1199,8 @@ function showToast(msg){
 renderCats('homeCats', 'homeCatClick');
 renderCats('galleryCats', 'galleryCatClick');
 wallpapers.forEach(w => w.views = getViews(w.id));
+document.body.classList.toggle('dark', isDark);
+document.querySelector('.theme-btn').textContent = isDark ? '☀' : '🌙';
 renderHomeGrid();
 filterGallery();
 renderManageTable();
