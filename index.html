@@ -38,7 +38,14 @@ nav {
   border-bottom: 1px solid var(--border); transition: background 0.3s;
 }
 .dark nav { background: rgba(6,14,23,0.88); }
-.logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: opacity 0.3s ease; }
+.logo.splash-hidden { opacity: 0; }
+
+#splashOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 99999; display: flex; align-items: center; justify-content: center; transition: opacity 0.35s ease; }
+#splashOverlay.hide { opacity: 0; pointer-events: none; }
+#splashText { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: -0.03em; font-size: clamp(1.8rem, 6vw, 3rem); white-space: nowrap; transform-origin: left top; will-change: transform; color: var(--accent); }
+.splash-letter { display: inline-block; opacity: 0; animation: splashLetterFade 0.45s ease forwards; }
+@keyframes splashLetterFade { from { opacity: 0; } to { opacity: 1; } }
 .nav-links { display: flex; gap: 0.25rem; list-style: none; }
 .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; padding: 0.4rem 0.9rem; border-radius: 8px; transition: all 0.2s; cursor: pointer; white-space: nowrap; }
 .nav-links a:hover, .nav-links a.active { color: var(--accent); background: rgba(14,120,200,0.08); }
@@ -50,6 +57,7 @@ nav {
 
 /* PAGES */
 .page { display: none; }
+.page.active { animation: fadeIn 0.35s ease; }
 .page.active { display: block; }
 
 /* HERO */
@@ -218,6 +226,8 @@ footer strong { color: var(--accent); }
 
 /* ANIMATIONS */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
@@ -311,9 +321,12 @@ footer strong { color: var(--accent); }
 </style>
 </head>
 <body>
+<div id="splashOverlay">
+  <div id="splashText"></div>
+</div>
 
-<nav>
-  <div class="logo" onclick="showPage('home')">Fuzz - WallVault</div>
+<nav style="animation:fadeDown 0.5s ease 2.15s backwards;">
+  <div class="logo splash-hidden" id="navLogo" onclick="showPage('home')">Fuzz - WallVault</div>
   <ul class="nav-links">
     <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
     <li><a onclick="galleryActiveCat='all';showPage('gallery')" id="nav-gallery">Gallery</a></li>
@@ -330,15 +343,15 @@ footer strong { color: var(--accent); }
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hero-tag">✨ 100% Free Downloads</div>
-    <h1>Beautiful Wallpapers<br><span>For Everyone</span></h1>
-    <p class="hero-sub">Discover thousands of stunning, high-quality wallpapers. Download in any resolution — completely free, no signup needed.</p>
-    <div class="search-wrap">
+    <div class="hero-tag" style="animation:fadeUp 0.6s ease 2.15s backwards;">✨ 100% Free Downloads</div>
+    <h1 style="animation:fadeUp 0.6s ease 2.25s backwards;">Beautiful Wallpapers<br><span>For Everyone</span></h1>
+    <p class="hero-sub" style="animation:fadeUp 0.6s ease 2.35s backwards;">Discover thousands of stunning, high-quality wallpapers. Download in any resolution — completely free, no signup needed.</p>
+    <div class="search-wrap" style="animation:fadeUp 0.6s ease 2.45s backwards;">
       <span class="search-icon">🔍</span>
       <input type="text" placeholder="Search wallpapers… sky, anime, cars, space…" id="heroSearch" oninput="debouncedHeroSearch(this.value, this)">
       <button class="search-btn" onclick="doSearch()">Search</button>
     </div>
-    <div class="stats">
+    <div class="stats" style="animation:fadeUp 0.6s ease 2.55s backwards;">
       <div class="stat"><div class="stat-num" id="statWallpapers">0</div><div class="stat-label">Wallpapers</div></div>
       <div class="stat"><div class="stat-num" id="statCategories">0</div><div class="stat-label">Categories</div></div>
       <div class="stat"><div class="stat-num">4K</div><div class="stat-label">Max Resolution</div></div>
@@ -421,12 +434,14 @@ footer strong { color: var(--accent); }
       <div class="form-group"><label>Title</label><input type="text" id="upTitle" placeholder="e.g. Sunset Over Ocean"></div>
       <div class="form-group">
         <label>Category</label>
-        <select id="upCat">
+        <select id="upCat" onchange="toggleCustomCat(this)">
           <option>Nature</option><option>Space</option><option>Abstract</option>
           <option>Cars</option><option>Anime</option><option>Dark</option>
           <option>Minimal</option><option>Architecture</option><option>Animals</option>
           <option>Sky</option><option>Ocean</option><option>Mountains</option>
+          <option value="Others">Others (type manually)</option>
         </select>
+        <input type="text" id="upCatCustom" placeholder="Type your category…" style="display:none;margin-top:0.6rem;">
       </div>
       <div class="form-group">
         <label>Resolution</label>
@@ -577,6 +592,10 @@ window.uploadWallpaper = async function() {
   const file = document.getElementById('fileInput').files[0];
   if (!title) { showToast('❌ Please enter a title'); return; }
   if (!file) { showToast('❌ Please select an image'); return; }
+  const catSelect = document.getElementById('upCat').value;
+  const catCustom = document.getElementById('upCatCustom').value.trim();
+  if (catSelect === 'Others' && !catCustom) { showToast('❌ Please type a category name'); return; }
+  const finalCategory = catSelect === 'Others' ? catCustom : catSelect;
   const btn = document.querySelector('.submit-btn');
   btn.textContent = '⏳ Uploading...'; btn.disabled = true;
   try {
@@ -584,7 +603,7 @@ window.uploadWallpaper = async function() {
     const { url, publicId } = await uploadToCloudinary(file);
     showToast('💾 Saving to database...');
     const wallData = {
-      title, category: document.getElementById('upCat').value,
+      title, category: finalCategory,
       badge: document.getElementById('upBadge').value,
       tags: document.getElementById('upTags').value.split(',').map(t=>t.trim()).filter(Boolean),
       imageUrl: url, publicId, downloads: 0, createdAt: new Date().toISOString()
@@ -594,6 +613,8 @@ window.uploadWallpaper = async function() {
     renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
     document.getElementById('upTitle').value = '';
     document.getElementById('upTags').value = '';
+    document.getElementById('upCatCustom').value = '';
+    document.getElementById('upCatCustom').style.display = 'none';
     document.getElementById('uploadPreview').style.display = 'none';
     document.getElementById('fileInput').value = '';
     showToast('✅ Wallpaper uploaded successfully!');
@@ -784,10 +805,11 @@ function renderGrid(containerId, walls, opts){
     </div>`;
     return;
   }
-  el.innerHTML = walls.map(w => {
+  el.innerHTML = walls.map((w, i) => {
     const src = w.url ? w.url : imgUrl(w.id);
     const faved = isFavorited(w.id);
-    return `<div class="wall-card has-fav" onclick="openModal('${w.id}')">
+    const delay = Math.min(i, 12) * 0.05;
+    return `<div class="wall-card has-fav" style="animation:cardIn 0.45s ease ${delay}s backwards;" onclick="openModal('${w.id}')">
       <img src="${src}" alt="${w.t}" loading="lazy" onload="this.classList.add('loaded')">
       <button class="fav-btn ${faved ? 'faved' : ''}" onclick="event.stopPropagation();toggleFavorite('${w.id}')" title="${faved ? 'Remove from favorites' : 'Add to favorites'}">${faved ? '❤' : '🤍'}</button>
       ${w.isExternal ? `<span class="badge" style="background:#111827;color:#fff">🌐 Pexels</span>` : (w.badge ? `<span class="badge ${w.badge}">${w.badge.toUpperCase()}</span>` : '')}
@@ -1123,6 +1145,12 @@ function renderAnalytics(){
     </div>`).join('') || '<span style="color:var(--muted);font-size:0.8rem">No data yet</span>';
 }
 
+function toggleCustomCat(select){
+  const customInput = document.getElementById('upCatCustom');
+  customInput.style.display = select.value === 'Others' ? 'block' : 'none';
+  if(select.value !== 'Others') customInput.value = '';
+}
+
 function toggleCheckAll(cb){ document.querySelectorAll('.row-check').forEach(c=>c.checked=cb.checked); }
 function bulkDelete(){
   const checked = [...document.querySelectorAll('.row-check:checked')];
@@ -1201,6 +1229,56 @@ renderCats('galleryCats', 'galleryCatClick');
 wallpapers.forEach(w => w.views = getViews(w.id));
 document.body.classList.toggle('dark', isDark);
 document.querySelector('.theme-btn').textContent = isDark ? '☀' : '🌙';
+
+// SPLASH INTRO — reveals "Fuzz - WallVault" letter-by-letter via fade (typing
+// rhythm, no cursor/slide), then smoothly flies/shrinks it into the nav logo.
+function runSplashIntro(){
+  const overlay = document.getElementById('splashOverlay');
+  const navLogo = document.getElementById('navLogo');
+  const splashTextEl = document.getElementById('splashText');
+  if(!overlay || !navLogo || !splashTextEl) return;
+
+  // Respect reduced-motion preference — just skip straight to the end state
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    overlay.remove();
+    navLogo.classList.remove('splash-hidden');
+    return;
+  }
+
+  const text = 'Fuzz - WallVault';
+  const letterStagger = 0.035; // seconds between each letter starting to fade in
+  const letterDuration = 0.45; // seconds each letter takes to fade in
+  splashTextEl.innerHTML = text.split('').map((ch, idx) =>
+    `<span class="splash-letter" style="animation-delay:${(idx*letterStagger).toFixed(3)}s">${ch === ' ' ? '&nbsp;' : ch}</span>`
+  ).join('');
+  const totalRevealTime = (text.length - 1) * letterStagger + letterDuration; // ~1.0s
+
+  function flyToLogo(){
+    document.querySelectorAll('.splash-letter').forEach(el => el.style.animation = 'none'); // lock letters fully visible
+    const from = splashTextEl.getBoundingClientRect();
+    const to = navLogo.getBoundingClientRect();
+    const fromFontSize = parseFloat(getComputedStyle(splashTextEl).fontSize);
+    const toFontSize = parseFloat(getComputedStyle(navLogo).fontSize);
+    const scale = toFontSize / fromFontSize;
+    // transform-origin is "left top" on both ends, so we align top-left corners directly —
+    // no center-math mismatch, no drift outside the viewport.
+    const dx = to.left - from.left;
+    const dy = to.top - from.top;
+
+    splashTextEl.style.transition = 'transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+    splashTextEl.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+
+    setTimeout(()=>{
+      navLogo.classList.remove('splash-hidden');
+      overlay.classList.add('hide');
+      setTimeout(()=> overlay.remove(), 400);
+    }, 780);
+  }
+
+  // Let the letter-by-letter reveal finish, hold briefly, then fly to the logo.
+  setTimeout(flyToLogo, (totalRevealTime + 0.4) * 1000);
+}
+runSplashIntro();
 renderHomeGrid();
 filterGallery();
 renderManageTable();
