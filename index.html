@@ -185,11 +185,43 @@ h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-f
 /* MANAGE TABLE */
 .manage-section { margin-top: 3rem; }
 .manage-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
-.wall-table { width: 100%; border-collapse: collapse; }
-.wall-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
+.wall-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+.table-scroll-wrap { overflow-x: auto; border-radius: 12px; }
+.wall-table th { text-align: left; padding: 0.75rem 1rem; font-size: 0.78rem; font-weight: 700; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
 .wall-table td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .wall-table tr:hover td { background: rgba(14,120,200,0.04); }
-.wall-table img { width: 56px; height: 40px; object-fit: cover; border-radius: 8px; }
+.wall-table tr.dragging { opacity: 0.4; }
+.wall-table tr.drag-over td { border-top: 2px solid var(--accent); }
+.wall-table img { width: 56px; height: 40px; object-fit: cover; border-radius: 8px; cursor: zoom-in; }
+.wall-table td.tags-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.78rem; }
+.wall-table td.date-cell { white-space: nowrap; color: var(--muted); font-size: 0.78rem; }
+.drag-handle { cursor: grab; color: var(--muted); font-size: 1rem; user-select: none; padding-right: 0.4rem; }
+.inline-edit-input { width: 100%; padding: 0.4rem 0.5rem; border-radius: 8px; border: 1px solid var(--accent); background: var(--card); color: var(--text); font-size: 0.82rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+.tbl-btn.save { background: rgba(16,185,129,0.1); color: #10b981; }
+.tbl-btn.cancel { background: rgba(90,136,170,0.1); color: var(--muted); }
+
+/* IMAGE LIGHTBOX */
+.img-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 2rem; cursor: zoom-out; }
+.img-lightbox.open { display: flex; }
+.img-lightbox img { max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+
+/* DUPLICATE TOGGLE */
+.dup-toggle-btn { padding: 0.6rem 1.1rem; border-radius: 10px; background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.dup-toggle-btn:hover { background: rgba(245,158,11,0.2); }
+.dup-toggle-btn.active { background: #f59e0b; color: white; }
+.csv-export-btn { padding: 0.6rem 1.1rem; border-radius: 10px; background: rgba(14,120,200,0.1); color: var(--accent); border: 1px solid rgba(14,120,200,0.25); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.csv-export-btn:hover { background: rgba(14,120,200,0.2); }
+.bulk-cat-select { padding: 0.55rem 0.7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.82rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+.bulk-apply-btn { padding: 0.6rem 1.1rem; border-radius: 10px; background: rgba(14,120,200,0.1); color: var(--accent); border: 1px solid rgba(14,120,200,0.25); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* ACTIVITY LOG */
+.activity-log-section { margin-top: 2rem; }
+.activity-log-list { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 0.5rem 1.3rem; max-height: 320px; overflow-y: auto; }
+.activity-row { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.8rem 0; border-bottom: 1px solid var(--border); }
+.activity-row:last-child { border-bottom: none; }
+.activity-icon { width: 30px; height: 30px; border-radius: 50%; background: rgba(14,120,200,0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
+.activity-text { font-size: 0.82rem; }
+.activity-time { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
 .tbl-btn { padding: 0.3rem 0.75rem; border-radius: 7px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; font-family: 'Plus Jakarta Sans', sans-serif; margin-right: 0.4rem; transition: opacity 0.2s; }
 .tbl-btn.edit { background: rgba(14,120,200,0.12); color: var(--accent); }
 .tbl-btn.del { background: rgba(239,68,68,0.1); color: #ef4444; }
@@ -323,6 +355,9 @@ footer strong { color: var(--accent); }
 <body>
 <div id="splashOverlay">
   <div id="splashText"></div>
+</div>
+<div class="img-lightbox" id="imgLightbox" onclick="closeImgLightbox()">
+  <img id="imgLightboxImg" src="" alt="Full preview">
 </div>
 
 <nav style="animation:fadeDown 0.5s ease 2.15s backwards;">
@@ -461,16 +496,35 @@ footer strong { color: var(--accent); }
       <h3>📋 Manage Wallpapers</h3>
       <div class="admin-search-row">
         <input class="admin-search-input" type="text" id="adminSearchInput" placeholder="🔍 Search wallpapers…" oninput="renderManageTable()">
+        <select class="bulk-cat-select" id="bulkCatSelect">
+          <option value="">Change category to…</option>
+          <option>Nature</option><option>Space</option><option>Abstract</option>
+          <option>Cars</option><option>Anime</option><option>Dark</option>
+          <option>Minimal</option><option>Architecture</option><option>Animals</option>
+          <option>Sky</option><option>Ocean</option><option>Mountains</option>
+        </select>
+        <button class="bulk-apply-btn" onclick="bulkChangeCategory()">Apply to Selected</button>
         <button class="bulk-del-btn" onclick="bulkDelete()">🗑 Delete Selected</button>
+        <button class="dup-toggle-btn" id="dupToggleBtn" onclick="toggleDuplicatesOnly()">⚠ Show Duplicates Only</button>
+        <button class="csv-export-btn" onclick="exportWallpapersCSV()">⬇ Export CSV</button>
       </div>
+      <p style="font-size:0.76rem;color:var(--muted);margin:-0.5rem 0 0.8rem;">💡 Drag the ⠿ handle to reorder rows — the Home page's default order follows this. On smaller screens, scroll the table sideways to see all columns →</p>
+      <div class="table-scroll-wrap">
       <table class="wall-table">
-        <thead><tr><th><input type="checkbox" class="tbl-check" id="checkAll" onchange="toggleCheckAll(this)"></th><th>Preview</th><th>Title</th><th>Category</th><th>Downloads</th><th>Actions</th></tr></thead>
+        <thead><tr><th></th><th><input type="checkbox" class="tbl-check" id="checkAll" onchange="toggleCheckAll(this)"></th><th>Preview</th><th>Title</th><th>Category</th><th>Tags</th><th>Uploaded</th><th>Downloads</th><th>Actions</th></tr></thead>
         <tbody id="manageTable"></tbody>
       </table>
+      </div>
+      <div class="pagination" id="adminPagination"></div>
+    </div>
+    <div class="activity-log-section">
+      <h3>🕒 Activity Log</h3>
+      <div class="activity-log-list" id="activityLogList"></div>
     </div>
     <div class="analytics-section">
       <h3>📊 Analytics Dashboard</h3>
       <div class="analytics-cards" id="analyticsCards"></div>
+      <p style="font-size:0.74rem;color:var(--muted);margin:-0.6rem 0 1rem;">💡 "Uploaded via Admin Panel" totals only files uploaded through this tool — it can't securely reflect your full Cloudinary account storage (that requires a private API key, which isn't safe to use in browser code). Check your <a href="https://cloudinary.com/console" target="_blank" style="color:var(--accent);">Cloudinary Console</a> for the true account-wide total.</p>
       <div class="a-block">
         <h4>Top 5 Wallpapers by Downloads</h4>
         <div id="analyticsTopWalls"></div>
@@ -488,7 +542,7 @@ footer strong { color: var(--accent); }
   <div class="about-wrap">
     <div class="about-avatar">👨‍💻</div>
     <h2>About Fuzz - WallVault</h2>
-    <div class="about-name">Created by Mohamed Faiju</div>
+    <div class="about-name">Created by FUF</div>
     <div class="about-desc">
       <p>Fuzz - WallVault is a passion project built to give everyone access to beautiful, high-quality wallpapers — completely free. No login, no paywalls, just pure creativity.</p>
       <br>
@@ -556,12 +610,12 @@ footer strong { color: var(--accent); }
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
 
 <footer>
-  <p>Made with 💙 by <strong>Mohamed Faiju</strong> · Fuzz - WallVault © 2026 · All wallpapers free to use</p>
+  <p>Made with 💙 by <strong></strong> · FUFuzz - WallVault © 2026 · All wallpapers free to use</p>
 </footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBoyrU57zp2zwqWPcor4wpxAYva7CuUKTo",
@@ -587,6 +641,49 @@ async function uploadToCloudinary(file) {
   return { url: data.secure_url, publicId: data.public_id };
 }
 
+// SHA-256 hash of the raw file bytes — used to detect exact duplicate uploads
+// (same image file uploaded more than once, even under a different title).
+async function hashFile(file) {
+  const buf = await file.arrayBuffer();
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ===================== ACTIVITY LOG =====================
+window.logActivity = async function(action, detail) {
+  const entry = { action, detail, timestamp: new Date().toISOString() };
+  activityLogCache.unshift(entry);
+  activityLogCache = activityLogCache.slice(0, 15);
+  renderActivityLog();
+  try { await addDoc(collection(db, 'activityLog'), entry); }
+  catch (err) { console.error('Activity log write failed:', err); }
+};
+
+window.loadActivityLog = async function() {
+  try {
+    const q = query(collection(db, 'activityLog'), orderBy('timestamp', 'desc'), limit(15));
+    const snapshot = await getDocs(q);
+    activityLogCache = snapshot.docs.map(d => d.data());
+    renderActivityLog();
+  } catch (err) { console.error('Activity log load failed:', err); }
+};
+
+// Generic Firestore field update — used by inline edit and bulk category change
+window.updateWallDoc = async function(id, fields) {
+  await updateDoc(doc(db, 'wallpapers', id), fields);
+};
+
+// Persist a wallpaper's manual drag-and-drop order
+window.persistOrder = async function(id, orderVal) {
+  try { await updateDoc(doc(db, 'wallpapers', id), { order: orderVal }); }
+  catch (err) { console.error('Order persist failed:', err); }
+};
+
+// Delete one or more Firestore wallpaper documents (used by single + bulk delete)
+window.deleteWallDocs = async function(ids) {
+  await Promise.all(ids.map(id => deleteDoc(doc(db, 'wallpapers', id))));
+};
+
 window.uploadWallpaper = async function() {
   const title = document.getElementById('upTitle').value.trim();
   const file = document.getElementById('fileInput').files[0];
@@ -600,16 +697,17 @@ window.uploadWallpaper = async function() {
   btn.textContent = '⏳ Uploading...'; btn.disabled = true;
   try {
     showToast('☁️ Uploading to Cloudinary...');
-    const { url, publicId } = await uploadToCloudinary(file);
+    const [{ url, publicId }, contentHash] = await Promise.all([uploadToCloudinary(file), hashFile(file)]);
     showToast('💾 Saving to database...');
     const wallData = {
       title, category: finalCategory,
       badge: document.getElementById('upBadge').value,
       tags: document.getElementById('upTags').value.split(',').map(t=>t.trim()).filter(Boolean),
-      imageUrl: url, publicId, downloads: 0, createdAt: new Date().toISOString()
+      imageUrl: url, publicId, downloads: 0, createdAt: new Date().toISOString(),
+      contentHash, fileSizeBytes: file.size
     };
     const docRef = await addDoc(collection(db, 'wallpapers'), wallData);
-    wallpapers.unshift({ id: docRef.id, t: title, c: wallData.category, badge: wallData.badge, tags: wallData.tags, dl: 0, url, isFirestore: true });
+    wallpapers.unshift({ id: docRef.id, t: title, c: wallData.category, badge: wallData.badge, tags: wallData.tags, dl: 0, url, isFirestore: true, contentHash, fileSizeBytes: file.size, createdAt: wallData.createdAt });
     renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
     document.getElementById('upTitle').value = '';
     document.getElementById('upTags').value = '';
@@ -618,6 +716,7 @@ window.uploadWallpaper = async function() {
     document.getElementById('uploadPreview').style.display = 'none';
     document.getElementById('fileInput').value = '';
     showToast('✅ Wallpaper uploaded successfully!');
+    window.logActivity('Uploaded', `Added "${title}" (${finalCategory})`);
   } catch (err) {
     showToast('❌ Upload failed: ' + err.message);
   } finally {
@@ -633,7 +732,11 @@ async function loadWallpapers() {
     const firestoreWalls = snapshot.docs.map(d => ({
       id: d.id, t: d.data().title, c: d.data().category,
       badge: d.data().badge || '', tags: d.data().tags || [],
-      dl: d.data().downloads || 0, url: d.data().imageUrl, isFirestore: true
+      dl: d.data().downloads || 0, url: d.data().imageUrl, isFirestore: true,
+      contentHash: d.data().contentHash || null,
+      fileSizeBytes: d.data().fileSizeBytes || 0,
+      createdAt: d.data().createdAt || null,
+      order: d.data().order
     }));
     if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...seeds];
     renderHomeGrid(); filterGallery(); renderManageTable(); renderAnalytics();
@@ -649,20 +752,12 @@ window.deleteWall = async function(i) {
     wallpapers.splice(i, 1);
     renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
     showToast('🗑 Deleted!');
+    window.logActivity('Deleted', `Removed "${w.t}"`);
   } catch (err) { showToast('❌ Delete failed: ' + err.message); }
 }
 
-window.editWall = async function(i) {
-  const w = wallpapers[i];
-  const newTitle = prompt('Edit title:', w.t);
-  if (!newTitle) return;
-  try {
-    if (w.isFirestore) await updateDoc(doc(db, 'wallpapers', w.id), { title: newTitle });
-    w.t = newTitle;
-    renderManageTable(); renderHomeGrid(); filterGallery();
-    showToast('✅ Updated!');
-  } catch (err) { showToast('❌ Update failed: ' + err.message); }
-}
+// Editing is now done inline in the table (see startInlineEdit/saveInlineEdit in the main script)
+window.editWall = function(i){ startInlineEdit(i); }
 
 loadWallpapers();
 </script>
@@ -740,6 +835,180 @@ function trackView(id){
 }
 function getViews(id){ return viewCounts[id] || 0; }
 
+// ===================== ADMIN TABLE: STATE =====================
+let adminPage = 1;
+const ADMIN_PAGE_SIZE = 8;
+let showDuplicatesOnly = false;
+let editingIndex = null;   // index (in global `wallpapers` array) currently being inline-edited
+let dragSrcIndex = null;   // index currently being dragged for reorder
+
+// Wallpapers whose content-hash matches at least one other wallpaper's hash
+// (i.e. the exact same image file was uploaded more than once).
+function getDuplicateWalls(list){
+  const counts = {};
+  list.forEach(w => { if(w.contentHash) counts[w.contentHash] = (counts[w.contentHash]||0) + 1; });
+  return list.filter(w => w.contentHash && counts[w.contentHash] > 1);
+}
+
+function toggleDuplicatesOnly(){
+  showDuplicatesOnly = !showDuplicatesOnly;
+  adminPage = 1;
+  document.getElementById('dupToggleBtn').classList.toggle('active', showDuplicatesOnly);
+  renderManageTable();
+}
+
+function openImgLightbox(url){
+  document.getElementById('imgLightboxImg').src = url;
+  document.getElementById('imgLightbox').classList.add('open');
+}
+function closeImgLightbox(){
+  document.getElementById('imgLightbox').classList.remove('open');
+}
+
+// ===================== CSV EXPORT =====================
+function exportWallpapersCSV(){
+  const rows = getLocalWalls();
+  const esc = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const header = ['Title','Category','Tags','Downloads','Views','Uploaded'];
+  const lines = [header.join(',')];
+  rows.forEach(w => {
+    lines.push([
+      esc(w.t), esc(w.c), esc((w.tags||[]).join('; ')), w.dl, getViews(w.id),
+      esc(w.createdAt ? new Date(w.createdAt).toLocaleDateString() : '')
+    ].join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'fuzz-wallvault-wallpapers.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('⬇ CSV exported!');
+}
+
+// ===================== DRAG & DROP REORDER =====================
+// Reordering works on the underlying `wallpapers` array directly. Only
+// Firestore-backed wallpapers persist their new order (via an `order` field);
+// built-in sample wallpapers reorder for the current session only.
+function handleRowDragStart(e, idx){
+  dragSrcIndex = idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function handleRowDragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function handleRowDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+async function handleRowDrop(e, targetIdx){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(dragSrcIndex === null || dragSrcIndex === targetIdx) return;
+  const [moved] = wallpapers.splice(dragSrcIndex, 1);
+  const insertAt = dragSrcIndex < targetIdx ? targetIdx - 1 : targetIdx;
+  wallpapers.splice(insertAt, 0, moved);
+  // Persist a fresh `order` value across all wallpapers so Home page sorting can follow it
+  const updates = [];
+  wallpapers.forEach((w, i) => {
+    w.order = i;
+    if(w.isFirestore) updates.push(window.persistOrder ? window.persistOrder(w.id, i) : Promise.resolve());
+  });
+  await Promise.all(updates);
+  dragSrcIndex = null;
+  renderManageTable(); renderHomeGrid();
+  showToast('↕ Order updated');
+  window.logActivity && window.logActivity('Reordered', `Moved "${moved.t}" to a new position`);
+}
+function handleRowDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.wall-table tr.drag-over').forEach(r=>r.classList.remove('drag-over'));
+}
+
+// ===================== INLINE QUICK-EDIT =====================
+function startInlineEdit(i){
+  editingIndex = i;
+  renderManageTable();
+}
+function cancelInlineEdit(){
+  editingIndex = null;
+  renderManageTable();
+}
+async function saveInlineEdit(i){
+  const w = wallpapers[i];
+  const newTitle = document.getElementById('editTitleInput').value.trim();
+  const newCat = document.getElementById('editCatSelect').value;
+  if(!newTitle){ showToast('❌ Title cannot be empty'); return; }
+  try {
+    if(w.isFirestore && window.updateWallDoc) await window.updateWallDoc(w.id, { title: newTitle, category: newCat });
+    w.t = newTitle; w.c = newCat;
+    editingIndex = null;
+    renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
+    showToast('✅ Updated!');
+    window.logActivity && window.logActivity('Edited', `Updated "${newTitle}"`);
+  } catch(err){ showToast('❌ Update failed: ' + err.message); }
+}
+
+// ===================== BULK CATEGORY CHANGE =====================
+async function bulkChangeCategory(){
+  const newCat = document.getElementById('bulkCatSelect').value;
+  const checked = [...document.querySelectorAll('.row-check:checked')];
+  if(!newCat){ showToast('⚠ Pick a category first'); return; }
+  if(!checked.length){ showToast('⚠ Select wallpapers first'); return; }
+  if(!confirm(`Change category to "${newCat}" for ${checked.length} wallpaper(s)?`)) return;
+  const idxs = checked.map(c=>parseInt(c.dataset.idx));
+  const updates = [];
+  idxs.forEach(i => {
+    const w = wallpapers[i];
+    if(!w) return;
+    w.c = newCat;
+    if(w.isFirestore && window.updateWallDoc) updates.push(window.updateWallDoc(w.id, { category: newCat }));
+  });
+  await Promise.all(updates);
+  renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
+  showToast(`✅ Category updated for ${idxs.length} wallpaper(s)`);
+  window.logActivity && window.logActivity('Bulk category change', `Set ${idxs.length} wallpaper(s) to "${newCat}"`);
+}
+
+// ===================== ADMIN TABLE PAGINATION =====================
+function renderAdminPagination(totalItems, totalPages){
+  const el = document.getElementById('adminPagination');
+  if(!el) return;
+  if(totalItems === 0){ el.innerHTML = ''; return; }
+  let buttons = `<button class="page-btn" ${adminPage===1?'disabled':''} onclick="goToAdminPage(${adminPage-1})">‹ Prev</button>`;
+  for(let p=1; p<=totalPages; p++){
+    buttons += `<button class="page-btn ${p===adminPage?'active':''}" onclick="goToAdminPage(${p})">${p}</button>`;
+  }
+  buttons += `<button class="page-btn" ${adminPage===totalPages?'disabled':''} onclick="goToAdminPage(${adminPage+1})">Next ›</button>`;
+  buttons += `<span class="page-info">${totalItems} wallpapers</span>`;
+  el.innerHTML = buttons;
+}
+function goToAdminPage(p){
+  if(p < 1) return;
+  adminPage = p;
+  renderManageTable();
+}
+
+// ===================== ACTIVITY LOG (rendering side) =====================
+let activityLogCache = [];
+function renderActivityLog(){
+  const el = document.getElementById('activityLogList');
+  if(!el) return;
+  if(!activityLogCache.length){
+    el.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">No activity yet</span>';
+    return;
+  }
+  el.innerHTML = activityLogCache.map(a => `
+    <div class="activity-row">
+      <div class="activity-icon">•</div>
+      <div>
+        <div class="activity-text"><strong>${a.action}</strong> — ${a.detail}</div>
+        <div class="activity-time">${new Date(a.timestamp).toLocaleString()}</div>
+      </div>
+    </div>`).join('');
+}
+
 // WEBSITE VISITORS — counted once per browser session (tab), persisted across visits
 if(!sessionStorage.getItem('wv_session_counted')){
   const totalVisits = parseInt(localStorage.getItem('wv_total_visits') || '0', 10) + 1;
@@ -780,8 +1049,10 @@ function checkAdminPwd(){
   if(val === 'fuzz wallvault'){
     document.getElementById('adminLock').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
+    adminPage = 1;
     renderManageTable();
     renderAnalytics();
+    window.loadActivityLog && window.loadActivityLog();
   } else {
     document.getElementById('lockErr').style.display = 'block';
     document.getElementById('adminPwdInput').value = '';
@@ -957,6 +1228,9 @@ function filterGalleryCat(cat, btn){
 }
 function renderHomeGrid(){
   let walls = getLocalWalls();
+  if(currentFilter==='all' && walls.some(w => w.order !== undefined)){
+    walls = [...walls].sort((a,b)=>(a.order ?? 9999) - (b.order ?? 9999));
+  }
   if(currentFilter==='newest') walls = [...walls].reverse();
   if(currentFilter==='popular' || currentFilter==='downloads') walls = [...walls].sort((a,b)=>b.dl-a.dl);
   renderGrid('homeGrid', walls.slice(0, homeVisibleCount));
@@ -1084,19 +1358,72 @@ function previewUpload(input){
   reader.readAsDataURL(file);
 }
 
+const ADMIN_CATEGORY_OPTIONS = ['Nature','Space','Abstract','Cars','Anime','Dark','Minimal','Architecture','Animals','Sky','Ocean','Mountains'];
+
 function renderManageTable(){
   const q = (document.getElementById('adminSearchInput')?.value || '').toLowerCase();
   const tbody = document.getElementById('manageTable');
-  const filtered = getLocalWalls().filter(w => !q || w.t.toLowerCase().includes(q) || w.c.toLowerCase().includes(q));
-  tbody.innerHTML = filtered.slice(0,20).map(w => {
+
+  let base = getLocalWalls();
+  if(showDuplicatesOnly) base = getDuplicateWalls(base);
+  const filtered = base.filter(w => !q || w.t.toLowerCase().includes(q) || w.c.toLowerCase().includes(q));
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
+  if(adminPage > totalPages) adminPage = totalPages;
+  const start = (adminPage - 1) * ADMIN_PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + ADMIN_PAGE_SIZE);
+  const dupIds = new Set(getDuplicateWalls(getLocalWalls()).map(d => String(d.id)));
+
+  if(!pageItems.length){
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:2rem;">
+      ${showDuplicatesOnly ? 'No duplicate wallpapers found 🎉' : 'No wallpapers found'}</td></tr>`;
+    renderAdminPagination(filtered.length, totalPages);
+    return;
+  }
+
+  tbody.innerHTML = pageItems.map(w => {
     const i = wallpapers.indexOf(w);
-    return `<tr>
+    const isDup = dupIds.has(String(w.id));
+    const uploadedStr = w.createdAt ? new Date(w.createdAt).toLocaleDateString() : '—';
+    const tagsStr = (w.tags||[]).join(', ') || '—';
+
+    if(editingIndex === i){
+      const catOptions = ADMIN_CATEGORY_OPTIONS.map(c=>`<option value="${c}" ${c===w.c?'selected':''}>${c}</option>`).join('');
+      return `<tr>
+        <td></td>
+        <td></td>
+        <td><img src="${w.url ? w.url : imgUrl(w.id,56,40)}" alt="${w.t}"></td>
+        <td><input class="inline-edit-input" id="editTitleInput" type="text" value="${w.t.replace(/"/g,'&quot;')}"></td>
+        <td><select class="inline-edit-input" id="editCatSelect">${catOptions}<option value="${w.c}" ${!ADMIN_CATEGORY_OPTIONS.includes(w.c)?'selected':''}>${w.c} (custom)</option></select></td>
+        <td class="tags-cell" title="${tagsStr}">${tagsStr}</td>
+        <td class="date-cell">${uploadedStr}</td>
+        <td>${w.dl.toLocaleString()}</td>
+        <td>
+          <button class="tbl-btn save" onclick="saveInlineEdit(${i})">💾 Save</button>
+          <button class="tbl-btn cancel" onclick="cancelInlineEdit()">✕ Cancel</button>
+        </td>
+      </tr>`;
+    }
+
+    return `<tr draggable="true"
+        ondragstart="handleRowDragStart(event, ${i})"
+        ondragover="handleRowDragOver(event)"
+        ondragleave="handleRowDragLeave(event)"
+        ondrop="handleRowDrop(event, ${i})"
+        ondragend="handleRowDragEnd(event)">
+      <td><span class="drag-handle" title="Drag to reorder">⠿</span></td>
       <td><input type="checkbox" class="tbl-check row-check" data-idx="${i}"></td>
-      <td><img src="${w.url ? w.url : imgUrl(w.id,56,40)}" alt="${w.t}"></td>
-      <td>${w.t}</td><td>${w.c}</td><td>${w.dl.toLocaleString()}</td>
-      <td><button class="tbl-btn edit" onclick="editWall(${i})">✏ Edit</button><button class="tbl-btn del" onclick="deleteWall(${i})">🗑 Delete</button></td>
+      <td><img src="${w.url ? w.url : imgUrl(w.id,56,40)}" alt="${w.t}" onclick="openImgLightbox('${w.url ? w.url : imgUrl(w.id,800,600)}')"></td>
+      <td>${w.t}${isDup ? ' <span title="Duplicate image detected" style="color:#f59e0b;">⚠</span>' : ''}</td>
+      <td>${w.c}</td>
+      <td class="tags-cell" title="${tagsStr}">${tagsStr}</td>
+      <td class="date-cell">${uploadedStr}</td>
+      <td>${w.dl.toLocaleString()}</td>
+      <td><button class="tbl-btn edit" onclick="startInlineEdit(${i})">✏ Edit</button><button class="tbl-btn del" onclick="deleteWall(${i})">🗑 Delete</button></td>
     </tr>`;
   }).join('');
+
+  renderAdminPagination(filtered.length, totalPages);
 }
 
 function renderAnalytics(){
@@ -1110,6 +1437,9 @@ function renderAnalytics(){
   const totalDownloads = stats.reduce((sum,w)=>sum+w.dl, 0);
   const totalViews = stats.reduce((sum,w)=>sum+(getViews(w.id)), 0);
   const totalFavs = favorites.length;
+  const totalBytes = stats.reduce((sum,w)=>sum+(w.fileSizeBytes||0), 0);
+  const storageLabel = totalBytes > 1024*1024 ? (totalBytes/(1024*1024)).toFixed(1)+' MB' : (totalBytes/1024).toFixed(0)+' KB';
+  const dupCount = getDuplicateWalls(stats).length;
 
   // Downloads grouped by category (computed first so we can show the top one as a headline card)
   const byCat = {};
@@ -1120,10 +1450,12 @@ function renderAnalytics(){
   cardsEl.innerHTML = `
     <div class="a-card"><div class="a-num">${totalWalls}</div><div class="a-label">Wallpapers</div></div>
     <div class="a-card"><div class="a-num">${totalDownloads.toLocaleString()}</div><div class="a-label">Total Downloads</div></div>
-    <div class="a-card"><div class="a-num">${totalViews.toLocaleString()}</div><div class="a-label">Total Views</div></div>
+    <div class="a-card"><div class="a-num">${totalViews.toLocaleString()}</div><div class="a-label">Wallpaper Previews</div></div>
     <div class="a-card"><div class="a-num">${totalFavs}</div><div class="a-label">Favorites Saved</div></div>
     <div class="a-card"><div class="a-num">${getTotalVisits().toLocaleString()}</div><div class="a-label">🧑‍💻 Website Viewers</div></div>
     <div class="a-card"><div class="a-num" style="font-size:1.1rem;">${topCat ? topCat[0] : '—'}</div><div class="a-label">🏆 Highly Downloaded Category${topCat ? ` (${topCat[1].toLocaleString()} dl)` : ''}</div></div>
+    <div class="a-card"><div class="a-num" style="font-size:1.3rem;">${storageLabel}</div><div class="a-label">💾 Uploaded via Admin Panel</div></div>
+    <div class="a-card"><div class="a-num" style="color:${dupCount ? '#f59e0b' : undefined};">${dupCount}</div><div class="a-label">⚠ Duplicate Wallpapers</div></div>
   `;
 
   // Top 5 wallpapers by downloads
@@ -1152,14 +1484,20 @@ function toggleCustomCat(select){
 }
 
 function toggleCheckAll(cb){ document.querySelectorAll('.row-check').forEach(c=>c.checked=cb.checked); }
-function bulkDelete(){
+async function bulkDelete(){
   const checked = [...document.querySelectorAll('.row-check:checked')];
   if(!checked.length){ showToast('⚠ Select wallpapers first'); return; }
   if(!confirm(`Delete ${checked.length} selected wallpaper(s)?`)) return;
   const idxs = checked.map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
+  const titles = idxs.map(i => wallpapers[i]?.t).filter(Boolean);
+  const firestoreIds = idxs.map(i => wallpapers[i]).filter(w => w && w.isFirestore).map(w => w.id);
+  try {
+    if(firestoreIds.length && window.deleteWallDocs) await window.deleteWallDocs(firestoreIds);
+  } catch(err){ showToast('❌ Some deletes failed: ' + err.message); }
   idxs.forEach(i=>wallpapers.splice(i,1));
   renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
   showToast(`🗑 Deleted ${idxs.length} wallpaper(s)`);
+  window.logActivity && window.logActivity('Bulk deleted', `Removed: ${titles.join(', ')}`);
 }
 
 function sendMsg(){
