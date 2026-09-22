@@ -610,7 +610,7 @@ footer strong { color: var(--accent); }
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
 
 <footer>
-  <p>Made with 💙 by <strong>FUF</strong> · Fuzz - WallVault © 2026 · All wallpapers free to use</p>
+  <p>Made with 💙 by <strong> FUF</strong> · Fuzz - WallVault © 2026 · All wallpapers free to use</p>
 </footer>
 
 <script type="module">
@@ -738,7 +738,7 @@ async function loadWallpapers() {
       createdAt: d.data().createdAt || null,
       order: d.data().order
     }));
-    if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...seeds.filter(s => !deletedSeedIds.includes(String(s.id)))];
+    if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...applySeedEdits(seeds.filter(s => !deletedSeedIds.includes(String(s.id))))];
     renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
     renderHomeGrid(); filterGallery(); renderManageTable(); renderAnalytics();
     showToast('✅ Wallpapers loaded!');
@@ -807,7 +807,12 @@ const seeds = [
 // Seed (demo) wallpapers aren't real database records, so deleting one only removes it
 // from memory unless we separately remember that deletion — persisted here so it survives refresh.
 let deletedSeedIds = JSON.parse(localStorage.getItem('wv_deleted_seeds') || '[]');
-let wallpapers = seeds.filter(s => !deletedSeedIds.includes(String(s.id)));
+// Same idea for edits (title/category changes) made to seed wallpapers — persisted by seed id.
+let seedEdits = JSON.parse(localStorage.getItem('wv_seed_edits') || '{}');
+function applySeedEdits(list){
+  return list.map(w => seedEdits[w.id] ? { ...w, ...seedEdits[w.id] } : w);
+}
+let wallpapers = applySeedEdits(seeds.filter(s => !deletedSeedIds.includes(String(s.id))));
 let activeCat = 'all';
 let galleryActiveCat = 'all';
 let currentWall = null;
@@ -952,9 +957,16 @@ async function saveInlineEdit(i){
   const newCat = document.getElementById('editCatSelect').value;
   if(!newTitle){ showToast('❌ Title cannot be empty'); return; }
   try {
-    if(w.isFirestore && window.updateWallDoc) await window.updateWallDoc(w.id, { title: newTitle, category: newCat });
+    if(w.isFirestore && window.updateWallDoc){
+      await window.updateWallDoc(w.id, { title: newTitle, category: newCat });
+    } else {
+      // Demo/seed wallpaper — remember this edit permanently so it doesn't revert on refresh.
+      seedEdits[w.id] = { ...(seedEdits[w.id]||{}), t: newTitle, c: newCat };
+      localStorage.setItem('wv_seed_edits', JSON.stringify(seedEdits));
+    }
     w.t = newTitle; w.c = newCat;
     editingIndex = null;
+    renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
     renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
     showToast('✅ Updated!');
     window.logActivity && window.logActivity('Edited', `Updated "${newTitle}"`);
@@ -970,13 +982,21 @@ async function bulkChangeCategory(){
   if(!confirm(`Change category to "${newCat}" for ${checked.length} wallpaper(s)?`)) return;
   const idxs = checked.map(c=>parseInt(c.dataset.idx));
   const updates = [];
+  let seedEditsChanged = false;
   idxs.forEach(i => {
     const w = wallpapers[i];
     if(!w) return;
     w.c = newCat;
-    if(w.isFirestore && window.updateWallDoc) updates.push(window.updateWallDoc(w.id, { category: newCat }));
+    if(w.isFirestore && window.updateWallDoc){
+      updates.push(window.updateWallDoc(w.id, { category: newCat }));
+    } else {
+      seedEdits[w.id] = { ...(seedEdits[w.id]||{}), c: newCat };
+      seedEditsChanged = true;
+    }
   });
+  if(seedEditsChanged) localStorage.setItem('wv_seed_edits', JSON.stringify(seedEdits));
   await Promise.all(updates);
+  renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
   renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
   showToast(`✅ Category updated for ${idxs.length} wallpaper(s)`);
   window.logActivity && window.logActivity('Bulk category change', `Set ${idxs.length} wallpaper(s) to "${newCat}"`);
