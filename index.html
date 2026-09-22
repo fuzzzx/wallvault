@@ -738,7 +738,8 @@ async function loadWallpapers() {
       createdAt: d.data().createdAt || null,
       order: d.data().order
     }));
-    if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...seeds];
+    if (firestoreWalls.length > 0) wallpapers = [...firestoreWalls, ...seeds.filter(s => !deletedSeedIds.includes(String(s.id)))];
+    renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
     renderHomeGrid(); filterGallery(); renderManageTable(); renderAnalytics();
     showToast('✅ Wallpapers loaded!');
   } catch (err) { console.error('Load error:', err); }
@@ -748,8 +749,15 @@ window.deleteWall = async function(i) {
   const w = wallpapers[i];
   if (!confirm('Delete "' + w.t + '"?')) return;
   try {
-    if (w.isFirestore) await deleteDoc(doc(db, 'wallpapers', w.id));
+    if (w.isFirestore) {
+      await deleteDoc(doc(db, 'wallpapers', w.id));
+    } else {
+      // Demo/seed wallpaper — remember this deletion permanently so it doesn't reappear on refresh.
+      deletedSeedIds.push(String(w.id));
+      localStorage.setItem('wv_deleted_seeds', JSON.stringify(deletedSeedIds));
+    }
     wallpapers.splice(i, 1);
+    renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
     renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
     showToast('🗑 Deleted!');
     window.logActivity('Deleted', `Removed "${w.t}"`);
@@ -796,7 +804,10 @@ const seeds = [
   {id:160,t:'Speed Beast',c:'Cars',badge:'',tags:['sports car','red','speed'],dl:0},
 ];
 
-let wallpapers = [...seeds];
+// Seed (demo) wallpapers aren't real database records, so deleting one only removes it
+// from memory unless we separately remember that deletion — persisted here so it survives refresh.
+let deletedSeedIds = JSON.parse(localStorage.getItem('wv_deleted_seeds') || '[]');
+let wallpapers = seeds.filter(s => !deletedSeedIds.includes(String(s.id)));
 let activeCat = 'all';
 let galleryActiveCat = 'all';
 let currentWall = null;
@@ -1491,10 +1502,16 @@ async function bulkDelete(){
   const idxs = checked.map(c=>parseInt(c.dataset.idx)).sort((a,b)=>b-a);
   const titles = idxs.map(i => wallpapers[i]?.t).filter(Boolean);
   const firestoreIds = idxs.map(i => wallpapers[i]).filter(w => w && w.isFirestore).map(w => w.id);
+  const seedIds = idxs.map(i => wallpapers[i]).filter(w => w && !w.isFirestore).map(w => String(w.id));
   try {
     if(firestoreIds.length && window.deleteWallDocs) await window.deleteWallDocs(firestoreIds);
   } catch(err){ showToast('❌ Some deletes failed: ' + err.message); }
+  if(seedIds.length){
+    deletedSeedIds.push(...seedIds);
+    localStorage.setItem('wv_deleted_seeds', JSON.stringify(deletedSeedIds));
+  }
   idxs.forEach(i=>wallpapers.splice(i,1));
+  renderCats('homeCats', 'homeCatClick'); renderCats('galleryCats', 'galleryCatClick');
   renderManageTable(); renderHomeGrid(); filterGallery(); renderAnalytics();
   showToast(`🗑 Deleted ${idxs.length} wallpaper(s)`);
   window.logActivity && window.logActivity('Bulk deleted', `Removed: ${titles.join(', ')}`);
